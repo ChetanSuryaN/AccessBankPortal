@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public final class Main {
     private static final Map<String, Map<String, Object>> usersDatabase = new HashMap<>();
@@ -16,11 +14,21 @@ public final class Main {
 
     public static void main(String[] args) {
         seedDefaultUser();
-        Javalin app = Javalin.create();
 
+        // 1. Read Railway's dynamic PORT environment variable. Fallback to 7070 if local.
+        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "7070"));
+
+        // 2. Configure Javalin to automatically host static files from our resources folder
+        Javalin app = Javalin.create(config -> {
+            config.staticFiles.add("/static"); 
+        });
+
+        // 3. Fallback home routes
         app.get("/", ctx -> ctx.html(frontend()));
         app.get("/index.html", ctx -> ctx.html(frontend()));
+        
         app.get("/api/autofill-profile", ctx -> ctx.json(publicProfile(usersDatabase.get("priya123"))));
+        
         app.post("/api/signup", ctx -> {
             try {
                 Map<String, Object> request = requestBody(ctx);
@@ -41,6 +49,7 @@ public final class Main {
                 ctx.status(400).json(Map.of("error", exception.getMessage()));
             }
         });
+
         app.post("/api/login", ctx -> {
             try {
                 Map<String, Object> request = requestBody(ctx);
@@ -62,6 +71,7 @@ public final class Main {
                 ctx.status(400).json(Map.of("error", exception.getMessage()));
             }
         });
+
         app.get("/api/scheme/{schemeId}", ctx -> {
             String schemeId = ctx.pathParam("schemeId");
             Map<String, Object> scheme = schemes().get(schemeId);
@@ -74,7 +84,8 @@ public final class Main {
             ctx.json(scheme);
         });
 
-        app.start(7070);
+        // Start on the dynamic cloud port!
+        app.start(port);
     }
 
     static String greeting() {
@@ -129,22 +140,16 @@ public final class Main {
         return profile;
     }
 
+    // 4. Safe resource stream reads index.html from inside the jar bundle
     private static String frontend() {
-        Path[] candidates = {
-                Path.of("index.html"),
-                Path.of("../index.html"),
-                Path.of("../../index.html")
-        };
-        for (Path candidate : candidates) {
-            if (Files.isRegularFile(candidate)) {
-                try {
-                    return Files.readString(candidate);
-                } catch (java.io.IOException exception) {
-                    throw new IllegalStateException("Unable to read frontend file: " + candidate, exception);
-                }
+        try (var inputStream = Main.class.getResourceAsStream("/static/index.html")) {
+            if (inputStream == null) {
+                throw new IllegalStateException("Frontend file index.html was not found in resources/static/");
             }
+            return new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Unable to read frontend file from resources path", exception);
         }
-        throw new IllegalStateException("Frontend file index.html was not found.");
     }
 
     private static Map<String, Object> profile() {
@@ -165,14 +170,14 @@ public final class Main {
                 "Senior Citizen Benefits Scheme",
                 List.of("Government ID", "Proof of age", "Address proof", "Recent photograph"),
                 "Submit your identity, age, and address documents through the nearest authorized service center.",
-                "https://example.com/videos/senior-citizen-application"
+                "https://example.com"
         ));
 
         schemes.put("student-loan", scheme(
                 "Student Loan Assistance Scheme",
                 List.of("Government ID", "Admission letter", "Academic transcripts", "Income certificate"),
                 "Complete the student loan application with your admission and financial documents, then submit it to a participating bank.",
-                "https://example.com/videos/student-loan-application"
+                "https://example.com"
         ));
 
         return schemes;
