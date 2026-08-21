@@ -407,6 +407,19 @@
     let isSimplifiedText = false;
     let activeInputId = 'username';
 
+    const SCHEME_NAMES = {
+        'senior-citizen': 'Senior Citizen Pension Scheme',
+        'student-loan': 'Student Education Loan Scheme',
+        'jan-dhan': 'PM Jan Dhan Yojana (PMJDY)',
+        'sukanya-samriddhi': 'Sukanya Samriddhi Yojana (SSY)',
+        'kisan-credit': 'Kisan Credit Card (KCC) Scheme',
+        'atal-pension': 'Atal Pension Yojana (APY)',
+        'home-loan': 'PM Awas Yojana Home Loan Support',
+        'mudra-loan': 'Mudra Micro Business Loan (PMMY)',
+        'fixed-deposit': 'Tax Saver Fixed Deposit Scheme',
+        'nsc': 'National Savings Certificate (NSC)'
+    };
+
     const TEXT_SIZES = [1, 1.15, 1.3, 1.45, 1.6, 1.8];
     let textSizeIndex = Number(localStorage.getItem('accessBankTextSizeIndex') || 0);
 
@@ -738,27 +751,60 @@
     async function fetchScheme(id) {
         try {
             const r = await fetch('/api/scheme/' + id);
+            if (!r.ok) {
+                throw new Error('Scheme detail not found on server');
+            }
             const scheme = await r.json();
             document.getElementById('schemeDetailCard').classList.remove('hidden');
-            const name = scheme.schemeName || scheme.name;
-            document.getElementById('schTitle').innerText = name;
-            activeSchemeOriginalInstructions = scheme.instructions || "";
+            
+            const resolvedName = scheme.schemeName || scheme.name || SCHEME_NAMES[id] || 'Government Scheme Detail';
+            document.getElementById('schTitle').innerText = resolvedName;
+            
+            activeSchemeOriginalInstructions = scheme.instructions || "Please visit your nearest bank branch to initiate application verification for this scheme.";
             activeSchemeSimpleInstructions = createSimpleInstructions(activeSchemeOriginalInstructions);
 
             document.getElementById('schInstructions').innerText = activeSchemeOriginalInstructions;
             renderSimpleInstructions();
             resetInstructionDisplay();
 
-            document.getElementById('schVideo').src = scheme.videoUrl;
+            document.getElementById('schVideo').src = scheme.videoUrl || "https://example.com";
             
             const docsList = document.getElementById('schDocs');
             docsList.innerHTML = "";
-            scheme.requiredDocuments.forEach(doc => {
-                let li = document.createElement('li'); li.innerText = doc; docsList.appendChild(li);
+            const docs = (scheme.requiredDocuments && scheme.requiredDocuments.length) 
+                ? scheme.requiredDocuments 
+                : ["Aadhaar Card", "Identity Proof", "Address Proof", "Passport Size Photo"];
+                
+            docs.forEach(doc => {
+                let li = document.createElement('li'); 
+                li.innerText = doc; 
+                docsList.appendChild(li);
             });
 
-            activeSchemeSpeechContext = `Scheme name: ${name}. Required documents are: ${scheme.requiredDocuments.join(', ')}. Instructions: ${scheme.instructions}`;
-        } catch(e) { console.error(e); }
+            activeSchemeSpeechContext = `Scheme name: ${resolvedName}. Required documents are: ${docs.join(', ')}. Instructions: ${activeSchemeOriginalInstructions}`;
+        } catch(e) { 
+            console.error(e);
+            document.getElementById('schemeDetailCard').classList.remove('hidden');
+            const fallbackName = SCHEME_NAMES[id] || 'Government Scheme Detail';
+            document.getElementById('schTitle').innerText = fallbackName;
+            
+            activeSchemeOriginalInstructions = "Please visit your nearest bank branch or official portal for enrollment details.";
+            activeSchemeSimpleInstructions = createSimpleInstructions(activeSchemeOriginalInstructions);
+            
+            document.getElementById('schInstructions').innerText = activeSchemeOriginalInstructions;
+            renderSimpleInstructions();
+            resetInstructionDisplay();
+            
+            const docsList = document.getElementById('schDocs');
+            docsList.innerHTML = "";
+            ["Identity Proof", "Address Proof", "Government ID Card"].forEach(doc => {
+                let li = document.createElement('li');
+                li.innerText = doc;
+                docsList.appendChild(li);
+            });
+
+            activeSchemeSpeechContext = `Scheme name: ${fallbackName}. Please visit your nearest bank branch for details.`;
+        }
     }
 
     let voiceSpeed = Number(localStorage.getItem('accessBankVoiceSpeed') || 1.0);
