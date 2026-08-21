@@ -43,6 +43,7 @@ public final class Main {
                 }
                 ctx.status(201).json(Map.of(
                         "message", "Account created successfully",
+                        "username", username,
                         "profile", publicProfile(usersDatabase.get(username))
                 ));
             } catch (IllegalArgumentException exception) {
@@ -68,6 +69,24 @@ public final class Main {
                         "profile", publicProfile(user)
                 ));
             } catch (IllegalArgumentException exception) {
+                ctx.status(400).json(Map.of("error", exception.getMessage()));
+            }
+        });
+
+        app.post("/api/freeze-account", ctx -> {
+            try {
+                Map<String, Object> request = requestBody(ctx);
+                String username = required(request, "username");
+                synchronized (usersDatabase) {
+                    Map<String, Object> user = usersDatabase.get(username);
+                    if (user != null) {
+                        user.put("isFrozen", true);
+                        ctx.json(Map.of("message", "Account frozen successfully"));
+                    } else {
+                        ctx.status(404).json(Map.of("error", "User not found"));
+                    }
+                }
+            } catch (Exception exception) {
                 ctx.status(400).json(Map.of("error", exception.getMessage()));
             }
         });
@@ -128,6 +147,7 @@ public final class Main {
         user.put("phone", required(request, "phone"));
         user.put("email", required(request, "email"));
         user.put("governmentId", required(request, "governmentId"));
+        user.put("isFrozen", false);
         return user;
     }
 
@@ -160,6 +180,7 @@ public final class Main {
         profile.put("phone", "+91-98765-43210");
         profile.put("email", "priya.sharma@example.com");
         profile.put("governmentId", "GOV-ID-PRIYA-1990");
+        profile.put("isFrozen", false);
         return profile;
     }
 
