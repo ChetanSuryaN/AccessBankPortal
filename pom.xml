@@ -1,180 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="
-         http://maven.apache.org/POM/4.0.0
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-
     <artifactId>accessbank</artifactId>
-
     <version>1.0.0</version>
 
     <name>AccessBank</name>
-
-    <description>
-        Accessible banking assistance platform
-    </description>
+    <description>Accessible banking portal</description>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <project.build.sourceEncoding>
-            UTF-8
-        </project.build.sourceEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
 
-        <maven.compiler.release>
-            17
-        </maven.compiler.release>
-
-        <javalin.version>
-            6.7.0
-        </javalin.version>
-
-        <jackson.version>
-            2.18.3
-        </jackson.version>
-
-        <slf4j.version>
-            2.0.17
-        </slf4j.version>
-
-        <jbcrypt.version>
-            0.4
-        </jbcrypt.version>
-
-        <junit.version>
-            5.11.4
-        </junit.version>
-
+        <javalin.version>6.7.0</javalin.version>
+        <jbcrypt.version>0.4</jbcrypt.version>
+        <slf4j.version>2.0.17</slf4j.version>
     </properties>
 
     <dependencies>
 
-        <!-- Javalin Web Framework -->
         <dependency>
             <groupId>io.javalin</groupId>
             <artifactId>javalin</artifactId>
             <version>${javalin.version}</version>
         </dependency>
 
-        <!-- Jackson JSON -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
-        <!-- Password Hashing -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>${jbcrypt.version}</version>
         </dependency>
 
-        <!-- Testing -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
 
     </dependencies>
 
     <build>
-
         <plugins>
 
-            <!-- Java 17 Compiler -->
             <plugin>
-
-                <groupId>
-                    org.apache.maven.plugins
-                </groupId>
-
-                <artifactId>
-                    maven-compiler-plugin
-                </artifactId>
-
-                <version>
-                    3.13.0
-                </version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
 
                 <configuration>
-                    <release>
-                        ${maven.compiler.release}
-                    </release>
+                    <release>17</release>
                 </configuration>
-
             </plugin>
 
-            <!-- Tests -->
             <plugin>
-
-                <groupId>
-                    org.apache.maven.plugins
-                </groupId>
-
-                <artifactId>
-                    maven-surefire-plugin
-                </artifactId>
-
-                <version>
-                    3.5.2
-                </version>
-
-            </plugin>
-
-            <!-- Create executable JAR with dependencies -->
-            <plugin>
-
-                <groupId>
-                    org.apache.maven.plugins
-                </groupId>
-
-                <artifactId>
-                    maven-shade-plugin
-                </artifactId>
-
-                <version>
-                    3.6.0
-                </version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
 
                 <executions>
-
                     <execution>
-
-                        <phase>
-                            package
-                        </phase>
+                        <phase>package</phase>
 
                         <goals>
-                            <goal>
-                                shade
-                            </goal>
+                            <goal>shade</goal>
                         </goals>
 
                         <configuration>
-
-                            <createDependencyReducedPom>
-                                false
-                            </createDependencyReducedPom>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
 
                             <transformers>
-
-                                <transformer
-                                    implementation=
+                                <transformer implementation=
                                     "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 
                                     <mainClass>
@@ -182,19 +83,13 @@
                                     </mainClass>
 
                                 </transformer>
-
                             </transformers>
-
                         </configuration>
-
                     </execution>
-
                 </executions>
-
             </plugin>
 
         </plugins>
-
     </build>
 
 </project>
