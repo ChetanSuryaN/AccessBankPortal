@@ -10,36 +10,48 @@ import java.util.Map;
 
 public final class Main {
 
-    private static final Map<String, Map<String, Object>> usersDatabase =
-            new HashMap<>();
+    // In-memory database for demonstration purposes
+    private static final Map<String, Map<String, Object>> usersDatabase = new HashMap<>();
 
     private Main() {
+        // Prevent instantiation
     }
 
     public static void main(String[] args) {
 
+        // Create the default demo user
         seedDefaultUser();
 
-        // Railway provides PORT automatically.
-        // Local fallback is 7070.
+        // Railway automatically provides the PORT environment variable
         int port = Integer.parseInt(
                 System.getenv().getOrDefault("PORT", "7070")
         );
 
+        // Create Javalin application
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/static");
         });
 
-        // Explicitly serve the frontend at /
-        app.get("/", ctx -> ctx.redirect("/index.html"));
+        /*
+         * ============================================================
+         * FRONTEND ROUTES
+         * ============================================================
+         */
 
-        // ============================
-        // ACTIVE SESSION CHECK
-        // ============================
+        app.get("/", ctx -> ctx.html(frontend()));
+
+        app.get("/index.html", ctx -> ctx.html(frontend()));
+
+
+        /*
+         * ============================================================
+         * SESSION CHECK
+         * ============================================================
+         */
+
         app.get("/api/me", ctx -> {
 
-            String loggedInUser =
-                    ctx.sessionAttribute("currentUser");
+            String loggedInUser = ctx.sessionAttribute("currentUser");
 
             if (loggedInUser == null) {
                 ctx.status(401).json(
@@ -48,30 +60,33 @@ public final class Main {
                 return;
             }
 
-            Map<String, Object> user =
-                    usersDatabase.get(loggedInUser);
+            Map<String, Object> user = usersDatabase.get(loggedInUser);
 
             if (user == null) {
                 ctx.status(404).json(
-                        Map.of("error",
-                                "User session expired or invalid")
+                        Map.of("error", "User session expired or invalid")
                 );
                 return;
             }
 
-            ctx.json(Map.of(
-                    "username", loggedInUser,
-                    "profile", publicProfile(user)
-            ));
+            ctx.json(
+                    Map.of(
+                            "username", loggedInUser,
+                            "profile", publicProfile(user)
+                    )
+            );
         });
 
-        // ============================
-        // PROFILE AUTOFILL
-        // ============================
+
+        /*
+         * ============================================================
+         * USER PROFILE AUTOFILL
+         * ============================================================
+         */
+
         app.get("/api/autofill-profile", ctx -> {
 
-            String loggedInUser =
-                    ctx.sessionAttribute("currentUser");
+            String loggedInUser = ctx.sessionAttribute("currentUser");
 
             if (loggedInUser == null) {
                 ctx.status(401).json(
@@ -80,8 +95,7 @@ public final class Main {
                 return;
             }
 
-            Map<String, Object> user =
-                    usersDatabase.get(loggedInUser);
+            Map<String, Object> user = usersDatabase.get(loggedInUser);
 
             if (user == null) {
                 ctx.status(404).json(
@@ -93,25 +107,29 @@ public final class Main {
             ctx.json(publicProfile(user));
         });
 
-        // ============================
-        // SIGNUP
-        // ============================
+
+        /*
+         * ============================================================
+         * SIGNUP
+         * ============================================================
+         */
+
         app.post("/api/signup", ctx -> {
 
             try {
-                Map<String, Object> request =
-                        requestBody(ctx);
 
-                String username =
-                        required(request, "username");
+                Map<String, Object> request = requestBody(ctx);
+
+                String username = required(request, "username");
 
                 synchronized (usersDatabase) {
 
                     if (usersDatabase.containsKey(username)) {
+
                         ctx.status(400).json(
-                                Map.of("error",
-                                        "Username already exists")
+                                Map.of("error", "Username already exists")
                         );
+
                         return;
                     }
 
@@ -121,72 +139,65 @@ public final class Main {
                     );
                 }
 
-                // Create login session
-                ctx.sessionAttribute(
-                        "currentUser",
-                        username
-                );
+                // Automatically log the user in
+                ctx.sessionAttribute("currentUser", username);
 
-                ctx.status(201).json(Map.of(
-                        "message",
-                        "Account created successfully",
+                Map<String, Object> user = usersDatabase.get(username);
 
-                        "username",
-                        username,
-
-                        "profile",
-                        publicProfile(
-                                usersDatabase.get(username)
+                ctx.status(201).json(
+                        Map.of(
+                                "message", "Account created successfully",
+                                "username", username,
+                                "profile", publicProfile(user)
                         )
-                ));
+                );
 
             } catch (IllegalArgumentException exception) {
 
                 ctx.status(400).json(
-                        Map.of(
-                                "error",
-                                exception.getMessage()
-                        )
+                        Map.of("error", exception.getMessage())
                 );
             }
         });
 
-        // ============================
-        // LOGIN
-        // ============================
+
+        /*
+         * ============================================================
+         * LOGIN
+         * ============================================================
+         */
+
         app.post("/api/login", ctx -> {
 
             try {
 
-                Map<String, Object> request =
-                        requestBody(ctx);
+                Map<String, Object> request = requestBody(ctx);
 
-                String username =
-                        required(request, "username");
-
-                String password =
-                        required(request, "password");
+                String username = required(request, "username");
+                String password = required(request, "password");
 
                 Map<String, Object> user =
                         usersDatabase.get(username);
 
                 if (user == null) {
+
                     ctx.status(401).json(
                             Map.of(
                                     "error",
                                     "Invalid username or password"
                             )
                     );
+
                     return;
                 }
 
                 String hashedPassword =
                         (String) user.get("passwordHash");
 
-                if (!BCrypt.checkpw(
-                        password,
-                        hashedPassword
-                )) {
+                boolean passwordCorrect =
+                        BCrypt.checkpw(password, hashedPassword);
+
+                if (!passwordCorrect) {
 
                     ctx.status(401).json(
                             Map.of(
@@ -194,46 +205,40 @@ public final class Main {
                                     "Invalid username or password"
                             )
                     );
+
                     return;
                 }
 
-                ctx.sessionAttribute(
-                        "currentUser",
-                        username
+                // Create session
+                ctx.sessionAttribute("currentUser", username);
+
+                ctx.json(
+                        Map.of(
+                                "message", "Login successful",
+                                "username", username,
+                                "profile", publicProfile(user)
+                        )
                 );
-
-                ctx.json(Map.of(
-                        "message",
-                        "Login successful",
-
-                        "username",
-                        username,
-
-                        "profile",
-                        publicProfile(user)
-                ));
 
             } catch (IllegalArgumentException exception) {
 
                 ctx.status(400).json(
-                        Map.of(
-                                "error",
-                                exception.getMessage()
-                        )
+                        Map.of("error", exception.getMessage())
                 );
             }
         });
 
-        // ============================
-        // LOGOUT
-        // ============================
+
+        /*
+         * ============================================================
+         * LOGOUT
+         * ============================================================
+         */
+
         app.post("/api/logout", ctx -> {
 
-            var session =
-                    ctx.req().getSession(false);
-
-            if (session != null) {
-                session.invalidate();
+            if (ctx.req().getSession(false) != null) {
+                ctx.req().getSession().invalidate();
             }
 
             ctx.json(
@@ -244,21 +249,27 @@ public final class Main {
             );
         });
 
-        // ============================
-        // EMERGENCY ACCOUNT FREEZE
-        // ============================
+
+        /*
+         * ============================================================
+         * EMERGENCY ACCOUNT FREEZE
+         * ============================================================
+         */
+
         app.post("/api/freeze-account", ctx -> {
 
             String loggedInUser =
                     ctx.sessionAttribute("currentUser");
 
             if (loggedInUser == null) {
+
                 ctx.status(401).json(
                         Map.of(
                                 "error",
                                 "Authentication required"
                         )
                 );
+
                 return;
             }
 
@@ -268,22 +279,23 @@ public final class Main {
                         usersDatabase.get(loggedInUser);
 
                 if (user == null) {
+
                     ctx.status(404).json(
                             Map.of(
                                     "error",
                                     "User not found"
                             )
                     );
+
                     return;
                 }
 
+                // Freeze account
                 user.put("isFrozen", true);
 
-                var session =
-                        ctx.req().getSession(false);
-
-                if (session != null) {
-                    session.invalidate();
+                // Destroy active session
+                if (ctx.req().getSession(false) != null) {
+                    ctx.req().getSession().invalidate();
                 }
 
                 ctx.json(
@@ -295,9 +307,13 @@ public final class Main {
             }
         });
 
-        // ============================
-        // GOVERNMENT SCHEMES
-        // ============================
+
+        /*
+         * ============================================================
+         * GOVERNMENT / BANKING SCHEMES
+         * ============================================================
+         */
+
         app.get("/api/scheme/{schemeId}", ctx -> {
 
             String schemeId =
@@ -321,15 +337,27 @@ public final class Main {
             ctx.json(scheme);
         });
 
-        // ============================
-        // START SERVER
-        // ============================
+
+        /*
+         * ============================================================
+         * START SERVER
+         * ============================================================
+         */
+
+        System.out.println(
+                "AccessBank server starting on port " + port
+        );
+
         app.start(port);
     }
 
-    // ========================================
-    // DEFAULT USER
-    // ========================================
+
+    /*
+     * ============================================================
+     * DEFAULT USER
+     * ============================================================
+     */
+
     private static void seedDefaultUser() {
 
         if (!usersDatabase.isEmpty()) {
@@ -355,9 +383,13 @@ public final class Main {
         );
     }
 
-    // ========================================
-    // REQUEST BODY
-    // ========================================
+
+    /*
+     * ============================================================
+     * READ JSON REQUEST BODY
+     * ============================================================
+     */
+
     @SuppressWarnings("unchecked")
     private static Map<String, Object> requestBody(
             io.javalin.http.Context ctx
@@ -380,32 +412,40 @@ public final class Main {
         }
     }
 
-    // ========================================
-    // REQUIRED FIELD
-    // ========================================
+
+    /*
+     * ============================================================
+     * REQUIRED FIELD VALIDATION
+     * ============================================================
+     */
+
     private static String required(
             Map<String, Object> request,
             String field
     ) {
 
-        Object value =
-                request.get(field);
+        Object value = request.get(field);
 
-        if (value == null ||
-                value.toString().isBlank()) {
+        if (
+                value == null ||
+                value.toString().isBlank()
+        ) {
 
             throw new IllegalArgumentException(
-                    "Missing required field: "
-                            + field
+                    "Missing required field: " + field
             );
         }
 
         return value.toString().trim();
     }
 
-    // ========================================
-    // CREATE USER RECORD
-    // ========================================
+
+    /*
+     * ============================================================
+     * CREATE USER RECORD
+     * ============================================================
+     */
+
     private static Map<String, Object> userRecord(
             Map<String, Object> request
     ) {
@@ -416,6 +456,7 @@ public final class Main {
         String rawPassword =
                 required(request, "password");
 
+        // Store HASHED password, never raw password
         user.put(
                 "passwordHash",
                 BCrypt.hashpw(
@@ -454,28 +495,37 @@ public final class Main {
                 required(request, "governmentId")
         );
 
-        user.put("isFrozen", false);
+        user.put(
+                "isFrozen",
+                false
+        );
 
-        user.put("accountBalance", "₹0.00");
+        // Demo financial data
+        user.put(
+                "accountBalance",
+                "₹0.00"
+        );
 
         user.put(
                 "creditScore",
-                "N/A - New Account"
+                "Not available"
         );
 
         user.put(
                 "transactionHistory",
-                List.of(
-                        "Account created successfully."
-                )
+                List.of("No transactions yet.")
         );
 
         return user;
     }
 
-    // ========================================
-    // REMOVE SENSITIVE DATA
-    // ========================================
+
+    /*
+     * ============================================================
+     * CREATE SAFE PUBLIC PROFILE
+     * ============================================================
+     */
+
     private static Map<String, Object> publicProfile(
             Map<String, Object> user
     ) {
@@ -487,14 +537,57 @@ public final class Main {
         Map<String, Object> profile =
                 new LinkedHashMap<>(user);
 
+        // Never expose password hash
         profile.remove("passwordHash");
 
         return profile;
     }
 
-    // ========================================
-    // DEFAULT PROFILE
-    // ========================================
+
+    /*
+     * ============================================================
+     * LOAD FRONTEND HTML
+     * ============================================================
+     */
+
+    private static String frontend() {
+
+        try (
+                var inputStream =
+                        Main.class.getResourceAsStream(
+                                "/static/index.html"
+                        )
+        ) {
+
+            if (inputStream == null) {
+
+                throw new IllegalStateException(
+                        "Frontend file index.html was not found in "
+                                + "src/main/resources/static/"
+                );
+            }
+
+            return new String(
+                    inputStream.readAllBytes(),
+                    java.nio.charset.StandardCharsets.UTF_8
+            );
+
+        } catch (Exception exception) {
+
+            throw new IllegalStateException(
+                    "Unable to read frontend file",
+                    exception
+            );
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * DEFAULT USER PROFILE
+     * ============================================================
+     */
+
     private static Map<String, Object> profile() {
 
         Map<String, Object> profile =
@@ -548,22 +641,28 @@ public final class Main {
         profile.put(
                 "transactionHistory",
                 List.of(
-                        "Salary credited: ₹50,000",
-                        "Electricity bill payment: ₹2,450",
-                        "UPI payment completed: ₹850"
+                        "₹5,000 received - Salary credit",
+                        "₹1,250 paid - Utility bill",
+                        "₹2,000 paid - Online purchase",
+                        "₹15,000 received - Bank transfer"
                 )
         );
 
         return profile;
     }
 
-    // ========================================
-    // SCHEMES
-    // ========================================
+
+    /*
+     * ============================================================
+     * SCHEME DATABASE
+     * ============================================================
+     */
+
     private static Map<String, Map<String, Object>> schemes() {
 
         Map<String, Map<String, Object>> schemes =
                 new LinkedHashMap<>();
+
 
         schemes.put(
                 "senior-citizen",
@@ -575,10 +674,12 @@ public final class Main {
                                 "Address proof",
                                 "Recent photograph"
                         ),
-                        "Submit your identity, age, and address documents through the nearest authorized service center.",
+                        "Submit your identity, age, and address documents "
+                                + "through the nearest authorized service center.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "student-loan",
@@ -590,10 +691,13 @@ public final class Main {
                                 "Academic transcripts",
                                 "Income certificate"
                         ),
-                        "Complete the student loan application with your admission and financial documents, then submit it to a participating bank.",
+                        "Complete the student loan application with your "
+                                + "admission and financial documents, then "
+                                + "submit it to a participating bank.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "jan-dhan",
@@ -605,10 +709,12 @@ public final class Main {
                                 "PAN Card",
                                 "Passport size photo"
                         ),
-                        "Visit any bank branch or Bank Mitra outlet to begin the account opening process.",
+                        "Visit any bank branch or Bank Mitra outlet with "
+                                + "your Aadhaar card to open a bank account.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "sukanya-samriddhi",
@@ -620,10 +726,13 @@ public final class Main {
                                 "Address proof",
                                 "Photo"
                         ),
-                        "Fill out the SSY account opening form at an authorized post office or bank.",
+                        "Fill out the SSY account opening form at your "
+                                + "nearest post office or authorized bank "
+                                + "with the required guardian details.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "kisan-credit",
@@ -635,10 +744,12 @@ public final class Main {
                                 "Address proof",
                                 "Crop details"
                         ),
-                        "Submit the required agricultural and identity documents at an authorized bank.",
+                        "Submit land records and agricultural operation "
+                                + "details at an eligible bank branch.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "atal-pension",
@@ -646,13 +757,15 @@ public final class Main {
                         "Atal Pension Yojana (APY)",
                         List.of(
                                 "Aadhaar Card",
-                                "Active savings account",
+                                "Active savings bank account",
                                 "Mobile number"
                         ),
-                        "Complete the required enrollment process through your bank.",
+                        "Link your savings account and complete the required "
+                                + "authorization process through your bank.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "home-loan",
@@ -660,14 +773,17 @@ public final class Main {
                         "Pradhan Mantri Awas Yojana (PMAY) Home Loan",
                         List.of(
                                 "Income proof",
-                                "Property documents",
+                                "Property valuation report",
                                 "Aadhaar Card",
                                 "Bank statements"
                         ),
-                        "Apply through an approved housing finance institution with the required documents.",
+                        "Apply through an approved housing finance provider "
+                                + "with the required property and income "
+                                + "documents.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "mudra-loan",
@@ -677,12 +793,14 @@ public final class Main {
                                 "Business registration certificate",
                                 "Identity proof",
                                 "Bank statement",
-                                "Business plan"
+                                "Business plan outline"
                         ),
-                        "Submit the required business and identity documents to a participating financial institution.",
+                        "Submit your business proposal and required identity "
+                                + "records to an eligible lending institution.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "fixed-deposit",
@@ -693,10 +811,13 @@ public final class Main {
                                 "Aadhaar Card",
                                 "Savings account details"
                         ),
-                        "Contact your bank for the applicable fixed deposit application process.",
+                        "Deposit funds for the required term through your "
+                                + "banking service or by submitting an FD "
+                                + "request at the branch.",
                         ""
                 )
         );
+
 
         schemes.put(
                 "nsc",
@@ -708,18 +829,52 @@ public final class Main {
                                 "PAN Card",
                                 "Purchase form"
                         ),
-                        "Contact an authorized post office or official service provider for the purchase process.",
+                        "Purchase an NSC through an authorized postal or "
+                                + "official online service.",
                         ""
                 )
         );
 
+
         return schemes;
     }
 
-    // ========================================
-    // CREATE SCHEME OBJECT
-    // ========================================
+
+    /*
+     * ============================================================
+     * CREATE SCHEME OBJECT
+     * ============================================================
+     */
+
     private static Map<String, Object> scheme(
             String name,
             List<String> requiredDocuments,
             String instructions,
+            String videoUrl
+    ) {
+
+        Map<String, Object> scheme =
+                new LinkedHashMap<>();
+
+        scheme.put("name", name);
+
+        scheme.put("schemeName", name);
+
+        scheme.put(
+                "requiredDocuments",
+                requiredDocuments
+        );
+
+        scheme.put(
+                "instructions",
+                instructions
+        );
+
+        scheme.put(
+                "videoUrl",
+                videoUrl
+        );
+
+        return scheme;
+    }
+}
