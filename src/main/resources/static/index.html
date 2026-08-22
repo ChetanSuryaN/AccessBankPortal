@@ -2,56 +2,470 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AccessBank - Secure Accessibility Engine</title>
-
     <style>
-        :root {
-            --bg: #ffffff;
-            --text: #121212;
-            --primary: #0056b3;
-            --card-bg: #f8f9fa;
-            --border: #cccccc;
+        :root { --bg: #ffffff; --text: #121212; --primary: #0056b3; --card-bg: #f8f9fa; --border: #cccccc; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.5; font-size: calc(16px * var(--text-scale, 1)); transition: font-size 0.2s ease; }
+        .high-contrast { --bg: #121212; --text: #ffff00; --primary: #ffff00; --card-bg: #000000; --border: #ffff00; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--border); padding-bottom: 10px; }
+        button { background: var(--primary); color: var(--bg); border: 2px solid var(--primary); padding: 12px 20px; font-weight: bold; cursor: pointer; font-size: 16px; margin: 5px; min-height: 48px; }
+        button:focus, input:focus, a:focus {
+            outline: 4px solid orange;
+            outline-offset: 3px;
+        }
+        button:focus-visible, input:focus-visible, a:focus-visible {
+            outline: 4px solid orange;
+            outline-offset: 3px;
+        }
+        @supports not selector(:focus-visible) {
+            button:focus, input:focus, a:focus {
+                outline: 4px solid orange;
+                outline-offset: 3px;
+            }
         }
 
-        body {
-            font-family: system-ui, sans-serif;
+        .card { background: var(--card-bg); border: 2px solid var(--border); padding: 20px; margin: 15px 0; border-radius: 4px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+        .hidden { display: none !important; }
+        input { width: 100%; max-width: 300px; padding: 10px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-size: 1em; margin-bottom: 10px; }
+        ul { padding-left: 20px; }
+
+        .auth-tab-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
+        .auth-tab-buttons button { flex: 1; margin: 0; }
+        .auth-tab-buttons button.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+        .accessibility-tools {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        .accessibility-tools button {
+            margin: 0;
+            min-width: 48px;
+            padding: 10px 14px;
+            font-size: 18px;
+        }
+        .accessibility-tools .size-label {
+            font-weight: 700;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+        @media (max-width: 600px) {
+            .accessibility-tools {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                justify-content: center;
+            }
+            .accessibility-tools .size-label {
+                font-size: 14px;
+            }
+        }
+
+        .voice-speed-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px;
+            padding: 6px 8px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        .voice-speed-controls label {
+            font-weight: 700;
+            font-size: 1em;
+        }
+        .voice-speed-controls select {
+            min-height: 44px;
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
             background: var(--bg);
             color: var(--text);
-            margin: 0;
-            padding: 20px;
-            line-height: 1.5;
-            font-size: calc(16px * var(--text-scale, 1));
-            transition: font-size 0.2s ease;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
         }
-
-        .high-contrast {
-            --bg: #121212;
-            --text: #ffff00;
-            --primary: #ffff00;
-            --card-bg: #000000;
-            --border: #ffff00;
+        .voice-speed-controls select:focus {
+            outline: 3px solid orange;
+            outline-offset: 2px;
         }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        header {
+        .instructions-controls {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid var(--border);
-            padding-bottom: 10px;
             gap: 10px;
+            margin: 10px 0;
             flex-wrap: wrap;
         }
 
-        button {
+        .simplified-instructions {
+            margin: 10px 0;
+            padding-left: 28px;
+        }
+
+        .simplified-instructions li {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        /* VIRTUAL KEYBOARD STYLES */
+        .keyboard-container {
+            margin-top: 15px;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            background: var(--card-bg);
+            max-width: 650px;
+        }
+        .keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .key-btn {
+            min-height: 44px;
+            margin: 0;
+            padding: 8px 4px;
+            font-size: 16px;
+            font-weight: bold;
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .key-btn:hover {
             background: var(--primary);
             color: var(--bg);
-            border
+        }
+        .key-wide {
+            grid-column: span 2;
+        }
+        .key-action {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+        .key-action:hover {
+            background: #bd2130;
+        }
+
+        /* ANTI-FRAUD SECTION STYLES */
+        .fraud-alert-card {
+            border: 3px solid #dc3545;
+        }
+        .fraud-alert-list li {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .btn-emergency-freeze {
+            background: #dc3545;
+            color: #ffffff;
+            border: 3px solid #721c24;
+            font-size: 1.1em;
+            width: 100%;
+            margin-top: 15px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+        }
+        .btn-emergency-freeze:hover {
+            background: #bd2130;
+        }
+
+        /* EMERGENCY FULLSCREEN LOCK BANNER */
+        .freeze-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #721c24;
+            color: #ffffff;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        .freeze-banner h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #ffc107;
+            text-transform: uppercase;
+        }
+        .freeze-banner p {
+            font-size: 1.4em;
+            max-width: 800px;
+            line-height: 1.6;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border: 3px solid #ffc107;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- EMERGENCY LOCK SAFETY BANNER OVERLAY -->
+<div id="freezeOverlay" class="freeze-banner hidden" role="alertdialog" aria-live="assertive">
+    <h1>ACCOUNT SECURELY FROZEN</h1>
+    <p>
+        Security containment activated. To unlock, please visit your local physical branch office with a valid identity proof document.
+    </p>
+</div>
+
+<div class="container" id="app">
+    <div class="accessibility-tools" role="group" aria-label="Text size controls">
+        <span class="size-label" id="textSizeLabel">🔍 Text Size</span>
+        <button type="button" onclick="decreaseTextSize()" aria-label="Decrease text size">A−</button>
+        <button type="button" onclick="increaseTextSize()" aria-label="Increase text size">A+</button>
+        <button type="button" onclick="resetTextSize()" aria-label="Reset text size">↺</button>
+    </div>
+
+    <header>
+        <h1>AccessBank Portal 🏦</h1>
+        <div>
+            <button onclick="toggleContrast()" aria-label="Toggle High Contrast Display Mode">🎨 High Contrast</button>
+            <button id="logoutBtn" class="hidden" onclick="logout()" style="background-color:red; color:white;">Secure Exit</button>
+        </div>
+    </header>
+
+    <section id="authSection" class="card">
+        <h2>Secure Authorization</h2>
+
+        <div class="auth-tab-buttons">
+            <button id="tabLoginBtn" class="active" onclick="switchAuthTab('login')">Log In</button>
+            <button id="tabSignupBtn" onclick="switchAuthTab('signup')">Create Account</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm">
+            <label for="username">Username Input:</label><br>
+            <input type="text" id="username" placeholder="e.g., priya123" value="priya123" onfocus="setActiveInput('username')"><br>
+
+            <label for="password">Password Input:</label><br>
+            <input type="password" id="password" placeholder="e.g., password123" value="password123" onfocus="setActiveInput('password')"><br>
+
+            <button type="button" onclick="toggleKeyboard()" style="background:#17a2b8; color:white;" aria-expanded="false" id="btnToggleKeyboard">
+                ⌨️ Use On-Screen Keyboard
+            </button>
+            <button onclick="attemptLogin()">Log In Securely</button>
+        </div>
+
+        <!-- CREATE ACCOUNT FORM -->
+        <div id="signupForm" class="hidden">
+            <label for="signupUsername">Choose Username:</label><br>
+            <input type="text" id="signupUsername" placeholder="e.g., newuser123" onfocus="setActiveInput('signupUsername')"><br>
+
+            <label for="signupPassword">Choose Password:</label><br>
+            <input type="password" id="signupPassword" placeholder="e.g., secret123" onfocus="setActiveInput('signupPassword')"><br>
+
+            <label for="signupFullName">Full Name:</label><br>
+            <input type="text" id="signupFullName" placeholder="e.g., Rahul Sharma" onfocus="setActiveInput('signupFullName')"><br>
+
+            <label for="signupDob">Date of Birth (YYYY-MM-DD):</label><br>
+            <input type="text" id="signupDob" placeholder="1995-05-20" onfocus="setActiveInput('signupDob')"><br>
+
+            <label for="signupAddress">Residential Address:</label><br>
+            <input type="text" id="signupAddress" placeholder="123 Main St, City" onfocus="setActiveInput('signupAddress')"><br>
+
+            <label for="signupPhone">Phone Number:</label><br>
+            <input type="text" id="signupPhone" placeholder="+91-98765-00000" onfocus="setActiveInput('signupPhone')"><br>
+
+            <label for="signupEmail">Email Address:</label><br>
+            <input type="text" id="signupEmail" placeholder="user@example.com" onfocus="setActiveInput('signupEmail')"><br>
+
+            <label for="signupGovId">Government ID:</label><br>
+            <input type="text" id="signupGovId" placeholder="GOV-ID-9999" onfocus="setActiveInput('signupGovId')"><br>
+
+            <button type="button" onclick="toggleKeyboard()" style="background:#17a2b8; color:white;">
+                ⌨️ Use On-Screen Keyboard
+            </button>
+            <button onclick="attemptSignup()" style="background:#28a745; color:white;">Create Account</button>
+        </div>
+
+        <!-- VIRTUAL KEYBOARD PANEL -->
+        <div id="virtualKeyboard" class="keyboard-container hidden" aria-label="Virtual Keyboard">
+            <span style="font-weight: bold; font-size: 0.9em;">Virtual Keyboard (Target Input: <span id="lblActiveInput" style="color:var(--primary);">Username</span>)</span>
+            <div class="keyboard-grid" id="keyboardKeys"></div>
+        </div>
+    </section>
+
+    <main id="dashboardSection" class="hidden">
+        <section class="card">
+            <h2>💳 Financial Infrastructure Metrics</h2>
+            <p><strong>Ledger Net Asset Balance:</strong> <span id="lblBalance">Loading...</span></p>
+            <p><strong>CIBIL Bureau Registry Rating:</strong> <span id="lblCibil">Loading...</span></p>
+            <h3>Historical Activity Logs</h3>
+            <ul id="txHistoryList"></ul>
+        </section>
+
+        <!-- ANTI-FRAUD & SCAM AWARENESS HUB -->
+        <section class="card fraud-alert-card">
+            <h2>🛡️ Security Alert: Be Aware of Scammers</h2>
+            <button type="button" onclick="readSecurityAlert()" style="background:#dc3545; color:white;">
+                🔊 Read Security Alert Aloud
+            </button>
+            <ul class="fraud-alert-list" id="fraudAlertList">
+                <li>⚠️ AccessBank will NEVER ask for your login password, PIN, or OTP over a phone call or SMS.</li>
+                <li>⚠️ Watch out for fake support lines: Always verify links end exactly in '.replit.dev' or our official domain.</li>
+                <li>⚠️ Urgency Trap: If an executive threatens to freeze your account balance unless you pay immediately, hang up. It is a scam.</li>
+                <li>⚠️ Unknown remote control apps: Never download screensharing applications on your phone under anyone's instructions.</li>
+            </ul>
+
+            <!-- HIGH-VISIBILITY EMERGENCY FREEZE ACTION BUTTON -->
+            <button type="button" class="btn-emergency-freeze" onclick="emergencyFreezeAccount()">
+                🚨 EMERGENCY: FREEZE MY ACCOUNT NOW
+            </button>
+        </section>
+
+        <section class="card">
+@@ -407,6 +407,19 @@
+    let isSimplifiedText = false;
+    let activeInputId = 'username';
+
+    const SCHEME_NAMES = {
+        'senior-citizen': 'Senior Citizen Pension Scheme',
+        'student-loan': 'Student Education Loan Scheme',
+        'jan-dhan': 'PM Jan Dhan Yojana (PMJDY)',
+        'sukanya-samriddhi': 'Sukanya Samriddhi Yojana (SSY)',
+        'kisan-credit': 'Kisan Credit Card (KCC) Scheme',
+        'atal-pension': 'Atal Pension Yojana (APY)',
+        'home-loan': 'PM Awas Yojana Home Loan Support',
+        'mudra-loan': 'Mudra Micro Business Loan (PMMY)',
+        'fixed-deposit': 'Tax Saver Fixed Deposit Scheme',
+        'nsc': 'National Savings Certificate (NSC)'
+    };
+
+    const TEXT_SIZES = [1, 1.15, 1.3, 1.45, 1.6, 1.8];
+    let textSizeIndex = Number(localStorage.getItem('accessBankTextSizeIndex') || 0);
+
+@@ -738,66 +751,99 @@
+    async function fetchScheme(id) {
+        try {
+            const r = await fetch('/api/scheme/' + id);
+            if (!r.ok) {
+                throw new Error('Scheme detail not found on server');
+            }
+            const scheme = await r.json();
+            document.getElementById('schemeDetailCard').classList.remove('hidden');
+            const name = scheme.schemeName || scheme.name;
+            document.getElementById('schTitle').innerText = name;
+            activeSchemeOriginalInstructions = scheme.instructions || "";
+            
+            const resolvedName = scheme.schemeName || scheme.name || SCHEME_NAMES[id] || 'Government Scheme Detail';
+            document.getElementById('schTitle').innerText = resolvedName;
+            
+            activeSchemeOriginalInstructions = scheme.instructions || "Please visit your nearest bank branch to initiate application verification for this scheme.";
+            activeSchemeSimpleInstructions = createSimpleInstructions(activeSchemeOriginalInstructions);
+
+            document.getElementById('schInstructions').innerText = activeSchemeOriginalInstructions;
+            renderSimpleInstructions();
+            resetInstructionDisplay();
+
+            document.getElementById('schVideo').src = scheme.videoUrl;
+            document.getElementById('schVideo').src = scheme.videoUrl || "https://example.com";
+            
+            const docsList = document.getElementById('schDocs');
+            docsList.innerHTML = "";
+            const docs = (scheme.requiredDocuments && scheme.requiredDocuments.length) 
+                ? scheme.requiredDocuments 
+                : ["Aadhaar Card", "Identity Proof", "Address Proof", "Passport Size Photo"];
+                
+            docs.forEach(doc => {
+                let li = document.createElement('li'); 
+                li.innerText = doc; 
+                docsList.appendChild(li);
+            });
+
+            activeSchemeSpeechContext = `Scheme name: ${resolvedName}. Required documents are: ${docs.join(', ')}. Instructions: ${activeSchemeOriginalInstructions}`;
+        } catch(e) { 
+            console.error(e);
+            document.getElementById('schemeDetailCard').classList.remove('hidden');
+            const fallbackName = SCHEME_NAMES[id] || 'Government Scheme Detail';
+            document.getElementById('schTitle').innerText = fallbackName;
+            
+            activeSchemeOriginalInstructions = "Please visit your nearest bank branch or official portal for enrollment details.";
+            activeSchemeSimpleInstructions = createSimpleInstructions(activeSchemeOriginalInstructions);
+            
+            document.getElementById('schInstructions').innerText = activeSchemeOriginalInstructions;
+            renderSimpleInstructions();
+            resetInstructionDisplay();
+
+            const docsList = document.getElementById('schDocs');
+            docsList.innerHTML = "";
+            scheme.requiredDocuments.forEach(doc => {
+                let li = document.createElement('li'); li.innerText = doc; docsList.appendChild(li);
+            ["Identity Proof", "Address Proof", "Government ID Card"].forEach(doc => {
+                let li = document.createElement('li');
+                li.innerText = doc;
+                docsList.appendChild(li);
+            });
+
+            activeSchemeSpeechContext = `Scheme name: ${name}. Required documents are: ${scheme.requiredDocuments.join(', ')}. Instructions: ${scheme.instructions}`;
+        } catch(e) { console.error(e); }
+            activeSchemeSpeechContext = `Scheme name: ${fallbackName}. Please visit your nearest bank branch for details.`;
+        }
+    }
+
+    let voiceSpeed = Number(localStorage.getItem('accessBankVoiceSpeed') || 1.0);
+
+    function setVoiceSpeed(speed) {
+        const selectedSpeed = Number(speed);
+        if ([0.7, 1.0, 1.3].includes(selectedSpeed)) {
+            voiceSpeed = selectedSpeed;
+            localStorage.setItem('accessBankVoiceSpeed', voiceSpeed);
+        }
+    }
+
+    function applySavedVoiceSpeed() {
+        const selector = document.getElementById('voiceSpeed');
+        if (!selector) return;
+
+        const savedSpeed = Number(localStorage.getItem('accessBankVoiceSpeed') || 1.0);
+        voiceSpeed = [0.7, 1.0, 1.3].includes(savedSpeed) ? savedSpeed : 1.0;
+        selector.value = String(voiceSpeed);
+    }
+
+    function readActiveContext() {
+        if (!activeSchemeSpeechContext) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(activeSchemeSpeechContext);
+        u.rate = voiceSpeed;
+        window.speechSynthesis.speak(u);
+    }
+
+    applySavedVoiceSpeed();
+
+    function logout() {
+        activeUserSession = null;
+        window.speechSynthesis.cancel();
+        document.getElementById('authSection').classList.remove('hidden');
+        document.getElementById('dashboardSection').classList.add('hidden');
+        document.getElementById('schemeDetailCard').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.add('hidden');
+    }
+</script>
+</body>
+</html>
