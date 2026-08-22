@@ -8,7 +8,7 @@
     <artifactId>java-maven-project</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>Java Maven Project</name>
-    <description>A starter Java project managed with Maven.</description>
+    <description>AccessBank - Secure Accessibility Engine</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
