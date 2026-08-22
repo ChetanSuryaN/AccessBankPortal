@@ -297,20 +297,6 @@ The prototype can be expanded into a complete inclusive digital-finance platform
 
 ### 🌐 Regional Language Support
 
-Support for major Indian languages such as:
-
-- Kannada
-- Hindi
-- Tamil
-- Telugu
-- Malayalam
-- Marathi
-- Bengali
-
-### 🎙️ Voice-Based Navigation
-
-Allow users to navigate banking services using natural voice commands.
-
 ### 🤖 AI Accessibility Assistant
 
 An AI assistant could help users with:
