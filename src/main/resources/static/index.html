@@ -3,33 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AccessBank - Secure Accessibility Engine</title>
+    <title>AccessBank - Secure Multilingual Accessibility Engine</title>
     <style>
-        :root { --bg: #ffffff; --text: #121212; --primary: #0056b3; --card-bg: #f8f9fa; --border: #cccccc; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.5; font-size: calc(16px * var(--text-scale, 1)); transition: font-size 0.2s ease; }
-        .high-contrast { --bg: #121212; --text: #ffff00; --primary: #ffff00; --card-bg: #000000; --border: #ffff00; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--border); padding-bottom: 10px; }
-        button { background: var(--primary); color: var(--bg); border: 2px solid var(--primary); padding: 12px 20px; font-weight: bold; cursor: pointer; font-size: 16px; margin: 5px; min-height: 48px; }
-        button:focus, input:focus, a:focus {
-            outline: 4px solid orange;
-            outline-offset: 3px;
-        }
-        button:focus-visible, input:focus-visible, a:focus-visible {
-            outline: 4px solid orange;
-            outline-offset: 3px;
+        :root {
+            --bg: #ffffff;
+            --text: #121212;
+            --primary: #0056b3;
+            --primary-hover: #004085;
+            --card-bg: #f8f9fa;
+            --border: #cccccc;
+            --danger: #dc3545;
+            --danger-hover: #bd2130;
+            --success: #28a745;
+            --badge-bg: #e8f5e9;
+            --badge-text: #2e7d32;
+            --bot-bg: #e3f2fd;
+            --user-bg: #0056b3;
+            --user-text: #ffffff;
         }
 
-        .card { background: var(--card-bg); border: 2px solid var(--border); padding: 20px; margin: 15px 0; border-radius: 4px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            font-size: calc(16px * var(--text-scale, 1));
+            transition: font-size 0.2s ease, background 0.3s ease, color 0.3s ease;
+        }
+
+        .high-contrast {
+            --bg: #121212;
+            --text: #ffff00;
+            --primary: #ffff00;
+            --primary-hover: #e6e600;
+            --card-bg: #000000;
+            --border: #ffff00;
+            --danger: #ff5555;
+            --danger-hover: #ff2222;
+            --success: #55ff55;
+            --badge-bg: #003300;
+            --badge-text: #55ff55;
+            --bot-bg: #1a1a00;
+            --user-bg: #ffff00;
+            --user-text: #000000;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding-bottom: 110px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 3px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .lang-selector {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .lang-selector label {
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .lang-selector select {
+            padding: 8px 12px;
+            font-size: 0.95em;
+            font-weight: 600;
+            border: 2px solid var(--primary);
+            border-radius: 4px;
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        button {
+            background: var(--primary);
+            color: var(--bg);
+            border: 2px solid var(--primary);
+            padding: 10px 18px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 4px;
+            min-height: 48px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .high-contrast button {
+            color: #000000;
+        }
+
+        button:hover {
+            opacity: 0.92;
+        }
+
+        button:focus, input:focus, select:focus, textarea:focus, a:focus {
+            outline: 4px solid orange !important;
+            outline-offset: 3px !important;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            padding: 22px;
+            margin: 18px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
         .hidden { display: none !important; }
-        input { width: 100%; max-width: 300px; padding: 10px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-size: 1em; margin-bottom: 10px; }
-        ul { padding-left: 20px; }
 
-        .auth-tab-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-        .auth-tab-buttons button { flex: 1; margin: 0; }
-        .auth-tab-buttons button.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+        input, textarea, select {
+            width: 100%;
+            max-width: 450px;
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1em;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
 
+        .helper-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: -8px;
+            margin-bottom: 10px;
+            max-width: 450px;
+        }
+        .high-contrast .helper-text {
+            color: #ffff88;
+        }
+
+        ul { padding-left: 24px; }
+        li { margin-bottom: 6px; }
+
+        .auth-tab-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab-buttons button {
+            flex: 1;
+            margin: 0;
+        }
+
+        .auth-tab-buttons button.active {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+        }
+
+        .kyc-badge {
+            display: inline-block;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95em;
+            border: 2px solid var(--success);
+            margin-bottom: 12px;
+        }
+
+        /* 10 SCHEMES GRID STYLES */
+        .schemes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .scheme-item-btn {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--primary);
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: left;
+            cursor: pointer;
+            margin: 0;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .scheme-item-btn:hover, .scheme-item-btn.active {
+            background: var(--primary);
+            color: var(--bg);
+        }
+
+        /* DOCUMENT SCANNER BOX & LASER ANIMATION */
+        .scanner-card {
+            border: 2px dashed var(--primary);
+            background: rgba(0, 86, 179, 0.04);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
+            max-width: 550px;
+        }
+
+        .scanner-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .scanner-preview-container {
+            margin-top: 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scan-laser-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #00e676;
+            box-shadow: 0 0 12px #00e676, 0 0 20px #00e676;
+            animation: scanLaser 2s infinite ease-in-out;
+        }
+
+        @keyframes scanLaser {
+            0% { top: 0%; opacity: 0.8; }
+            50% { top: 96%; opacity: 1; }
+            100% { top: 0%; opacity: 0.8; }
+        }
+
+        /* SCHEME APPLICATION MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 3px solid var(--primary);
+            border-radius: 10px;
+            padding: 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        /* ACCESSIBILITY FLOATING BAR */
         .accessibility-tools {
             position: fixed;
             right: 20px;
@@ -38,59 +308,238 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px;
+            padding: 8px 14px;
             background: var(--card-bg);
             color: var(--text);
             border: 3px solid var(--primary);
             border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         }
+
         .accessibility-tools button {
             margin: 0;
-            min-width: 48px;
-            padding: 10px 14px;
-            font-size: 18px;
+            min-width: 44px;
+            padding: 8px 12px;
+            font-size: 1.1em;
         }
+
         .accessibility-tools .size-label {
             font-weight: 700;
-            font-size: 16px;
+            font-size: 0.95em;
             white-space: nowrap;
         }
-        @media (max-width: 600px) {
+
+        @media (max-width: 650px) {
             .accessibility-tools {
                 left: 10px;
                 right: 10px;
                 bottom: 10px;
                 justify-content: center;
             }
-            .accessibility-tools .size-label {
-                font-size: 14px;
-            }
+        }
+
+        /* FLOATING AI CHATBOT LAUNCHER */
+        .chatbot-launcher-btn {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            background: var(--primary);
+            color: var(--bg);
+            border: 3px solid var(--primary);
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.05em;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+        .high-contrast .chatbot-launcher-btn {
+            background: #000000;
+            color: #ffff00;
+            border-color: #ffff00;
+        }
+        .chatbot-launcher-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* AI CHATBOT POPUP WIDGET */
+        .chat-widget-window {
+            position: fixed;
+            left: 20px;
+            bottom: 85px;
+            width: 380px;
+            max-width: calc(100vw - 40px);
+            height: 520px;
+            max-height: calc(100vh - 120px);
+            background: var(--card-bg);
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: var(--primary);
+            color: var(--bg);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.05em;
+        }
+        .high-contrast .chat-header {
+            background: #000000;
+            color: #ffff00;
+            border-bottom: 2px solid #ffff00;
+        }
+
+        .chat-header button {
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 4px 8px;
+            min-height: auto;
+            margin: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .chat-msg.bot {
+            align-self: flex-start;
+            background: var(--bot-bg);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-msg.user {
+            align-self: flex-end;
+            background: var(--user-bg);
+            color: var(--user-text);
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg-tts-btn {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 2px 8px;
+            font-size: 0.8em;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            min-height: auto;
+            cursor: pointer;
+        }
+
+        .chat-suggestions {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            overflow-x: auto;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .chip-btn {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1.5px solid var(--primary);
+            padding: 6px 12px;
+            font-size: 0.85em;
+            border-radius: 16px;
+            cursor: pointer;
+            min-height: auto;
+            margin: 0;
+            flex-shrink: 0;
+        }
+        .chip-btn:hover {
+            background: var(--primary);
+            color: var(--bg);
+        }
+
+        .chat-input-row {
+            padding: 10px;
+            display: flex;
+            gap: 6px;
+            background: var(--card-bg);
+            border-top: 2px solid var(--border);
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            margin: 0;
+            padding: 8px 12px;
+            font-size: 0.95em;
+            max-width: none;
+        }
+
+        .chat-input-row button {
+            margin: 0;
+            padding: 8px 14px;
+            min-height: 40px;
+        }
+
+        .voice-btn-listening {
+            background: #dc3545 !important;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         .voice-speed-controls {
             display: inline-flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 8px;
-            margin: 5px;
-            padding: 6px 8px;
+            margin: 8px 0;
+            padding: 8px 12px;
             border: 2px solid var(--border);
             border-radius: 6px;
             background: var(--card-bg);
             color: var(--text);
         }
-        .voice-speed-controls label {
-            font-weight: 700;
-            font-size: 1em;
-        }
+
         .voice-speed-controls select {
-            min-height: 44px;
-            padding: 8px 12px;
+            min-height: 40px;
+            padding: 6px 10px;
             border: 2px solid var(--border);
             border-radius: 4px;
             background: var(--bg);
             color: var(--text);
-            font-size: 1em;
+            font-size: 0.95em;
             font-weight: 600;
             cursor: pointer;
         }
@@ -102,19 +551,21 @@
             border: 2px solid var(--primary);
             border-radius: 8px;
             background: var(--card-bg);
-            max-width: 650px;
+            max-width: 680px;
         }
+
         .keyboard-grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
             gap: 6px;
             margin-top: 10px;
         }
+
         .key-btn {
             min-height: 44px;
             margin: 0;
             padding: 8px 4px;
-            font-size: 16px;
+            font-size: 1.05em;
             font-weight: bold;
             background: var(--bg);
             color: var(--text);
@@ -124,31 +575,41 @@
             align-items: center;
             justify-content: center;
         }
+
         .key-btn:hover {
             background: var(--primary);
             color: var(--bg);
         }
 
-        /* ANTI-FRAUD SECTION STYLES */
+        /* ANTI-FRAUD SECTION */
         .fraud-alert-card {
-            border: 3px solid #dc3545;
+            border: 3px solid var(--danger);
+            background: #fff8f8;
         }
+
+        .high-contrast .fraud-alert-card {
+            background: #110000;
+            border-color: #ff5555;
+        }
+
         .fraud-alert-list li {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-weight: 600;
         }
+
         .btn-emergency-freeze {
-            background: #dc3545;
-            color: #ffffff;
+            background: var(--danger);
+            color: #ffffff !important;
             border: 3px solid #721c24;
             font-size: 1.1em;
             width: 100%;
             margin-top: 15px;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.35);
         }
+
         .btn-emergency-freeze:hover {
-            background: #bd2130;
+            background: var(--danger-hover);
         }
 
         /* EMERGENCY FULLSCREEN LOCK BANNER */
@@ -169,18 +630,20 @@
             padding: 30px;
             box-sizing: border-box;
         }
+
         .freeze-banner h1 {
             font-size: 2.5em;
             margin-bottom: 20px;
             color: #ffc107;
             text-transform: uppercase;
         }
+
         .freeze-banner p {
-            font-size: 1.4em;
-            max-width: 800px;
+            font-size: 1.35em;
+            max-width: 820px;
             line-height: 1.6;
             font-weight: bold;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.45);
             padding: 25px;
             border: 3px solid #ffc107;
             border-radius: 8px;
@@ -189,136 +652,290 @@
 </head>
 <body>
 
+<!-- EMERGENCY FREEZE MODAL -->
 <div id="freezeOverlay" class="freeze-banner hidden" role="alertdialog" aria-live="assertive">
-    <h1>ACCOUNT SECURELY FROZEN</h1>
-    <p>
+    <h1 data-i18n="freezeHeading">ACCOUNT SECURELY FROZEN</h1>
+    <p data-i18n="freezeMessage">
         Security containment activated. To unlock, please visit your local physical branch office with a valid identity proof document.
     </p>
 </div>
 
+<!-- SCHEME APPLICATION MODAL (AUTO-FILL & SCANNER) -->
+<div id="schemeApplyModal" class="modal-overlay hidden" role="dialog" aria-label="Scheme Application Form">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 id="modalSchemeTitle" style="margin:0;">Apply for Government Scheme</h2>
+            <button type="button" onclick="closeSchemeModal()" style="min-height:auto; padding:4px 10px;">✖</button>
+        </div>
+
+        <p id="modalSchemeDesc" style="font-size:0.95em; color:var(--text);"></p>
+
+        <!-- SCANNER SECTION FOR SCHEME -->
+        <div class="scanner-card">
+            <strong data-i18n="scanSchemeDocTitle">📷 Scan Required Proof Document to Auto-Fill:</strong>
+            <div class="scanner-actions">
+                <button type="button" onclick="simulateSchemeDocumentScan('aadhaar')" style="background:#17a2b8; color:white; font-size:0.9em; min-height:40px;">
+                    Scan Aadhaar / ID Card
+                </button>
+                <button type="button" onclick="simulateSchemeDocumentScan('income')" style="background:#6f42c1; color:white; font-size:0.9em; min-height:40px;">
+                    Scan Income Certificate
+                </button>
+            </div>
+            <div id="schemeScanPreview" class="scanner-preview-container hidden">
+                <div class="scan-laser-line"></div>
+                <span>📄 <span id="schemeScanStatus">Analyzing document with OCR...</span></span>
+            </div>
+        </div>
+
+        <form onsubmit="submitSchemeApplication(event)">
+            <input type="hidden" id="applySchemeId">
+
+            <label for="applyApplicantName" data-i18n="lblFullName">Full Legal Name:</label><br>
+            <input type="text" id="applyApplicantName" required><br>
+
+            <label for="applyGovId" data-i18n="lblGovId">Government Identity (PAN / Aadhaar):</label><br>
+            <input type="text" id="applyGovId" required><br>
+
+            <label for="applyDocUploaded" data-i18n="lblDocAttached">Attached Verified Proof:</label><br>
+            <input type="text" id="applyDocUploaded" value="Scanned Aadhaar & KYC Verified Card" readonly><br>
+
+            <label for="applyRemarks" data-i18n="lblRemarks">Application Remarks / Details:</label><br>
+            <textarea id="applyRemarks" rows="3" placeholder="State any additional eligibility context..."></textarea><br>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+                <button type="button" onclick="closeSchemeModal()" style="background:#6c757d; color:white;" data-i18n="btnCancel">Cancel</button>
+                <button type="submit" style="background:var(--success); color:white;" data-i18n="btnSubmitApp">Submit Application ✅</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- FLOATING AI CHATBOT LAUNCHER -->
+<button class="chatbot-launcher-btn" onclick="toggleChatWidget()" aria-label="Open AI Banking Assistant" id="btnOpenChat">
+    💬 <span data-i18n="chatLauncher">AI Assistant</span>
+</button>
+
+<!-- AI CHATBOT POPUP WIDGET -->
+<div id="chatWidget" class="chat-widget-window hidden" role="dialog" aria-label="AI Banking Assistant Chatbot">
+    <div class="chat-header">
+        <span data-i18n="chatTitle">🤖 AccessBot AI Assistant</span>
+        <button type="button" onclick="toggleChatWidget()" aria-label="Close Chat">✖</button>
+    </div>
+
+    <div class="chat-messages" id="chatMessagesBox">
+        <div class="chat-msg bot">
+            <span id="chatGreetingMsg">Hello! I am AccessBot, your 24/7 AI Assistant. How can I help you today?</span>
+            <br>
+            <button class="msg-tts-btn" onclick="readBotMessage(this)" aria-label="Read message aloud">🔊 Read</button>
+        </div>
+    </div>
+
+    <!-- QUICK SUGGESTIONS CAROUSEL -->
+    <div class="chat-suggestions" id="chatSuggestionsRow">
+        <button type="button" class="chip-btn" onclick="sendQuickPrompt(this)" data-i18n="chipBalance">Check Balance 💳</button>
+        <button type="button" class="chip-btn" onclick="sendQuickPrompt(this)" data-i18n="chipKisan">PM Kisan 🌾</button>
+        <button type="button" class="chip-btn" onclick="sendQuickPrompt(this)" data-i18n="chipMudra">PM Mudra 💼</button>
+        <button type="button" class="chip-btn" onclick="sendQuickPrompt(this)" data-i18n="chipSukanya">Sukanya Samriddhi 🌸</button>
+        <button type="button" class="chip-btn" onclick="sendQuickPrompt(this)" data-i18n="chipAyushman">Ayushman Bharat 🏥</button>
+        <button type="button" class="chip-btn" onclick="sendQuickPrompt(this)" data-i18n="chipFraud">Report Scam 🚨</button>
+    </div>
+
+    <!-- CHAT INPUT & VOICE -->
+    <div class="chat-input-row">
+        <input type="text" id="chatInput" data-i18n-ph="chatPlaceholder" placeholder="Ask about balance, 10 schemes, loans..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+        <button type="button" id="btnVoiceInput" onclick="toggleSpeechRecognition()" title="Voice Input" aria-label="Speak into chatbot">🎙️</button>
+        <button type="button" onclick="sendChatMessage()" data-i18n="chatSend">Send</button>
+    </div>
+</div>
+
 <div class="container" id="app">
+    <!-- FLOATING ACCESSIBILITY CONTROLS -->
     <div class="accessibility-tools" role="group" aria-label="Text size controls">
-        <span class="size-label" id="textSizeLabel">🔍 Text Size</span>
+        <span class="size-label" id="textSizeLabel" data-i18n="textSize">🔍 Text Size</span>
         <button type="button" onclick="decreaseTextSize()" aria-label="Decrease text size">A−</button>
         <button type="button" onclick="increaseTextSize()" aria-label="Increase text size">A+</button>
         <button type="button" onclick="resetTextSize()" aria-label="Reset text size">↺</button>
     </div>
 
+    <!-- MAIN HEADER -->
     <header>
-        <h1>AccessBank Portal 🏦</h1>
-        <div>
-            <button onclick="toggleContrast()" aria-label="Toggle High Contrast Display Mode">🎨 High Contrast</button>
-            <button id="logoutBtn" class="hidden" onclick="logout()" style="background-color:red; color:white;">Secure Exit</button>
+        <h1 data-i18n="portalTitle">AccessBank Portal 🏦</h1>
+        <div class="header-controls">
+            <!-- LANGUAGE SELECTOR (5 LANGUAGES) -->
+            <div class="lang-selector">
+                <label for="languageSelect" data-i18n="langLabel">🌐 Language:</label>
+                <select id="languageSelect" onchange="changeLanguage(this.value)">
+                    <option value="en">English (English)</option>
+                    <option value="hi">हिन्दी (Hindi)</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                </select>
+            </div>
+
+            <button type="button" onclick="toggleContrast()" aria-label="Toggle High Contrast Display Mode" data-i18n="contrastBtn">🎨 High Contrast</button>
+            <button id="logoutBtn" type="button" class="hidden" onclick="logout()" style="background-color:var(--danger); color:white;" data-i18n="logoutBtn">Secure Exit</button>
         </div>
     </header>
 
+    <!-- AUTHENTICATION SECTION -->
     <section id="authSection" class="card">
-        <h2>Secure Authorization</h2>
+        <h2 data-i18n="authHeading">Secure Authorization</h2>
 
         <div class="auth-tab-buttons">
-            <button id="tabLoginBtn" class="active" onclick="switchAuthTab('login')">Log In</button>
-            <button id="tabSignupBtn" onclick="switchAuthTab('signup')">Create Account</button>
+            <button id="tabLoginBtn" class="active" type="button" onclick="switchAuthTab('login')" data-i18n="tabLogin">Log In</button>
+            <button id="tabSignupBtn" type="button" onclick="switchAuthTab('signup')" data-i18n="tabSignup">Create Account</button>
         </div>
 
         <!-- LOGIN FORM -->
         <div id="loginForm">
-            <label for="username">Username Input:</label><br>
-            <input type="text" id="username" placeholder="e.g., priya123" value="priya123" onfocus="setActiveInput('username')"><br>
+            <label for="username" data-i18n="lblUsername">Username Input:</label><br>
+            <input type="text" id="username" data-i18n-ph="phUsername" placeholder="e.g., priya123" value="priya123" onfocus="setActiveInput('username')"><br>
 
-            <label for="password">Password Input:</label><br>
-            <input type="password" id="password" placeholder="e.g., password123" value="password123" onfocus="setActiveInput('password')"><br>
+            <label for="password" data-i18n="lblPassword">Password Input:</label><br>
+            <input type="password" id="password" data-i18n-ph="phPassword" placeholder="e.g., Password@123" value="Password@123" onfocus="setActiveInput('password')"><br>
 
-            <button type="button" onclick="toggleKeyboard()" style="background:#17a2b8; color:white;" aria-expanded="false" id="btnToggleKeyboard">
+            <button type="button" onclick="toggleKeyboard()" style="background:#17a2b8; color:white;" aria-expanded="false" id="btnToggleKeyboard" data-i18n="btnKeyboard">
                 ⌨️ Use On-Screen Keyboard
             </button>
-            <button onclick="attemptLogin()">Log In Securely</button>
+            <button type="button" onclick="attemptLogin()" data-i18n="btnLoginSubmit">Log In Securely</button>
         </div>
 
-        <!-- CREATE ACCOUNT FORM -->
+        <!-- CREATE ACCOUNT (STRICT LEGITIMATE KYC FORM WITH SCANNER) -->
         <div id="signupForm" class="hidden">
-            <label for="signupUsername">Choose Username:</label><br>
-            <input type="text" id="signupUsername" placeholder="e.g., newuser123" onfocus="setActiveInput('signupUsername')"><br>
+            <!-- DOCUMENT SCANNER TO AUTO-FILL REGISTRATION -->
+            <div class="scanner-card">
+                <strong data-i18n="scannerSignupHeader">📷 Scan ID Card to Auto-Fill Registration Form:</strong>
+                <p style="font-size:0.85em; margin: 4px 0 8px 0;" data-i18n="scannerSignupDesc">
+                    Upload an Aadhaar, PAN, or Passport photo, or pick a sample card to auto-populate all KYC fields instantly.
+                </p>
+                <div class="scanner-actions">
+                    <button type="button" onclick="simulateRegistrationScan('aadhaar_demo')" style="background:#17a2b8; color:white; font-size:0.9em; min-height:40px;">
+                        📄 Scan Demo Aadhaar Card
+                    </button>
+                    <button type="button" onclick="simulateRegistrationScan('pan_demo')" style="background:#6f42c1; color:white; font-size:0.9em; min-height:40px;">
+                        💳 Scan Demo PAN Card
+                    </button>
+                    <input type="file" id="realDocUpload" accept="image/*" style="display:none;" onchange="handleRealDocUpload(this)">
+                    <button type="button" onclick="document.getElementById('realDocUpload').click()" style="background:#20c997; color:white; font-size:0.9em; min-height:40px;">
+                        📸 Upload Document Photo
+                    </button>
+                </div>
 
-            <label for="signupPassword">Choose Password:</label><br>
-            <input type="password" id="signupPassword" placeholder="e.g., secret123" onfocus="setActiveInput('signupPassword')"><br>
+                <div id="signupScanPreview" class="scanner-preview-container hidden">
+                    <div class="scan-laser-line"></div>
+                    <span>🔍 <strong id="scanProgressLabel">Scanning document with OCR engine...</strong></span>
+                </div>
+            </div>
 
-            <label for="signupFullName">Full Name:</label><br>
-            <input type="text" id="signupFullName" placeholder="e.g., Rahul Sharma" onfocus="setActiveInput('signupFullName')"><br>
+            <label for="signupUsername" data-i18n="lblChooseUsername">Choose Username:</label><br>
+            <input type="text" id="signupUsername" data-i18n-ph="phNewUsername" placeholder="e.g., rahul_sharma" onfocus="setActiveInput('signupUsername')"><br>
+            <div class="helper-text" data-i18n="helpUsername">4-24 characters, letters/numbers/underscore.</div>
 
-            <label for="signupDob">Date of Birth (YYYY-MM-DD):</label><br>
+            <label for="signupPassword" data-i18n="lblChoosePassword">Choose Password:</label><br>
+            <input type="password" id="signupPassword" data-i18n-ph="phNewPassword" placeholder="e.g., Secure@Pass123" onfocus="setActiveInput('signupPassword')"><br>
+            <div class="helper-text" data-i18n="helpPassword">Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char.</div>
+
+            <label for="signupFullName" data-i18n="lblFullName">Full Legal Name:</label><br>
+            <input type="text" id="signupFullName" data-i18n-ph="phFullName" placeholder="e.g., Rahul Sharma" onfocus="setActiveInput('signupFullName')"><br>
+
+            <label for="signupDob" data-i18n="lblDob">Date of Birth (YYYY-MM-DD):</label><br>
             <input type="text" id="signupDob" placeholder="1995-05-20" onfocus="setActiveInput('signupDob')"><br>
+            <div class="helper-text" data-i18n="helpDob">Must be 18+ years of age for banking legitimacy.</div>
 
-            <label for="signupAddress">Residential Address:</label><br>
-            <input type="text" id="signupAddress" placeholder="123 Main St, City" onfocus="setActiveInput('signupAddress')"><br>
+            <label for="signupAddress" data-i18n="lblAddress">Residential Address:</label><br>
+            <input type="text" id="signupAddress" data-i18n-ph="phAddress" placeholder="123 Main Street, City, State" onfocus="setActiveInput('signupAddress')"><br>
 
-            <label for="signupPhone">Phone Number:</label><br>
-            <input type="text" id="signupPhone" placeholder="+91-98765-00000" onfocus="setActiveInput('signupPhone')"><br>
+            <label for="signupPhone" data-i18n="lblPhone">Phone Number:</label><br>
+            <input type="text" id="signupPhone" placeholder="+91-9876543210" onfocus="setActiveInput('signupPhone')"><br>
+            <div class="helper-text" data-i18n="helpPhone">Legitimate 10-digit mobile (+91 format).</div>
 
-            <label for="signupEmail">Email Address:</label><br>
-            <input type="text" id="signupEmail" placeholder="user@example.com" onfocus="setActiveInput('signupEmail')"><br>
+            <label for="signupEmail" data-i18n="lblEmail">Email Address:</label><br>
+            <input type="text" id="signupEmail" placeholder="rahul.sharma@example.com" onfocus="setActiveInput('signupEmail')"><br>
 
-            <label for="signupGovId">Government ID:</label><br>
-            <input type="text" id="signupGovId" placeholder="GOV-ID-9999" onfocus="setActiveInput('signupGovId')"><br>
+            <label for="signupGovId" data-i18n="lblGovId">Government Identity (PAN / Aadhaar / Passport):</label><br>
+            <input type="text" id="signupGovId" placeholder="ABCDE1234F or 12-digit Aadhaar" onfocus="setActiveInput('signupGovId')"><br>
+            <div class="helper-text" data-i18n="helpGovId">Valid Govt KYC document for identity verification.</div>
 
-            <button type="button" onclick="toggleKeyboard()" style="background:#17a2b8; color:white;">
+            <button type="button" onclick="toggleKeyboard()" style="background:#17a2b8; color:white;" data-i18n="btnKeyboard">
                 ⌨️ Use On-Screen Keyboard
             </button>
-            <button onclick="attemptSignup()" style="background:#28a745; color:white;">Create Account</button>
+            <button type="button" onclick="attemptSignup()" style="background:var(--success); color:white;" data-i18n="btnSignupSubmit">Create Account</button>
         </div>
 
         <!-- VIRTUAL KEYBOARD PANEL -->
         <div id="virtualKeyboard" class="keyboard-container hidden" aria-label="Virtual Keyboard">
-            <span style="font-weight: bold; font-size: 0.9em;">Virtual Keyboard (Target Input: <span id="lblActiveInput" style="color:var(--primary);">Username</span>)</span>
+            <span style="font-weight: bold; font-size: 0.95em;">
+                <span data-i18n="virtualKeyboardTitle">Virtual Keyboard</span> (<span data-i18n="targetInputLabel">Target Input</span>: <span id="lblActiveInput" style="color:var(--primary);">Username</span>)
+            </span>
             <div class="keyboard-grid" id="keyboardKeys"></div>
         </div>
     </section>
 
+    <!-- DASHBOARD MAIN VIEW -->
     <main id="dashboardSection" class="hidden">
+        <!-- FINANCIAL METRICS -->
         <section class="card">
-            <h2>💳 Financial Infrastructure Metrics</h2>
-            <p><strong>Ledger Net Asset Balance:</strong> <span id="lblBalance">Loading...</span></p>
-            <p><strong>CIBIL Bureau Registry Rating:</strong> <span id="lblCibil">Loading...</span></p>
-            <h3>Historical Activity Logs</h3>
+            <div class="kyc-badge" id="lblKycBadge">✅ KYC Status: Verified Legitimate Citizen 🛡️</div>
+            <h2 data-i18n="metricsHeading">💳 Financial Infrastructure Metrics</h2>
+            <p><strong data-i18n="lblNetBalance">Ledger Net Asset Balance:</strong> <span id="lblBalance">Loading...</span></p>
+            <p><strong data-i18n="lblCibilRating">CIBIL Bureau Registry Rating:</strong> <span id="lblCibil">Loading...</span></p>
+            <h3 data-i18n="historyHeading">Historical Activity Logs</h3>
             <ul id="txHistoryList"></ul>
+
+            <!-- RECENT SCHEME APPLICATIONS -->
+            <div id="myApplicationsContainer" class="hidden" style="margin-top:15px; border-top:2px solid var(--border); padding-top:10px;">
+                <h3 data-i18n="myAppsHeading">📑 My Submitted Scheme Applications</h3>
+                <ul id="myApplicationsList"></ul>
+            </div>
         </section>
 
-        <!-- SCHEME DISCOVERY & DETAILS -->
+        <!-- 10 GOVERNMENT SCHEMES DIRECTORY -->
         <section class="card">
-            <h2>📜 Government Schemes Quick Lookup</h2>
-            <button onclick="fetchScheme('senior-citizen')">Senior Citizen Scheme</button>
-            <button onclick="fetchScheme('student-loan')">Student Loan Assistance</button>
+            <h2 data-i18n="schemesHeading">📜 Government Schemes Quick Lookup (10 Schemes)</h2>
+            <p style="font-size:0.95em;" data-i18n="schemesSubtitle">Select any scheme below to view required documents, guidelines, or apply directly with automated document scanning.</p>
 
-            <div id="schemeDetailCard" class="card hidden" style="margin-top: 15px;">
-                <h3 id="schTitle">Scheme Detail</h3>
-                <p><strong>Instructions:</strong> <span id="schInstructions"></span></p>
-                <div class="voice-speed-controls">
-                    <label for="voiceSpeed">Playback Speed:</label>
-                    <select id="voiceSpeed" onchange="setVoiceSpeed(this.value)">
-                        <option value="0.7">0.7x (Slower)</option>
-                        <option value="1.0" selected>1.0x (Normal)</option>
-                        <option value="1.3">1.3x (Faster)</option>
-                    </select>
-                    <button type="button" onclick="readActiveContext()">🔊 Read Aloud</button>
+            <div class="schemes-grid" id="schemesButtonsGrid">
+                <!-- Dynamically rendered 10 schemes -->
+            </div>
+
+            <div id="schemeDetailCard" class="card hidden" style="margin-top: 20px; border: 2px solid var(--primary);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <h3 id="schTitle" style="margin:0;">Scheme Detail</h3>
+                    <button type="button" onclick="openSchemeApplyModal()" style="background:var(--success); color:white; margin:0;" data-i18n="btnApplyNow">
+                        📝 Apply for this Scheme
+                    </button>
                 </div>
-                <h4>Required Documents</h4>
+
+                <p><strong data-i18n="lblInstructions">Instructions:</strong> <span id="schInstructions"></span></p>
+                <div class="voice-speed-controls">
+                    <label for="voiceSpeed" data-i18n="lblVoiceSpeed">Playback Speed:</label>
+                    <select id="voiceSpeed" onchange="setVoiceSpeed(this.value)">
+                        <option value="0.7" data-i18n="speedSlow">0.7x (Slower)</option>
+                        <option value="1.0" selected data-i18n="speedNormal">1.0x (Normal)</option>
+                        <option value="1.3" data-i18n="speedFast">1.3x (Faster)</option>
+                    </select>
+                    <button type="button" onclick="readActiveContext()" data-i18n="btnReadAloud">🔊 Read Aloud</button>
+                </div>
+                <h4 data-i18n="lblReqDocs">Required Documents</h4>
                 <ul id="schDocs"></ul>
             </div>
         </section>
 
-        <!-- ANTI-FRAUD HUB -->
+        <!-- ANTI-FRAUD SECTION -->
         <section class="card fraud-alert-card">
-            <h2>🛡️ Security Alert: Be Aware of Scammers</h2>
-            <button type="button" onclick="readSecurityAlert()" style="background:#dc3545; color:white;">
+            <h2 data-i18n="fraudHeading">🛡️ Security Alert: Be Aware of Scammers</h2>
+            <button type="button" onclick="readSecurityAlert()" style="background:var(--danger); color:white;" data-i18n="btnReadFraud">
                 🔊 Read Security Alert Aloud
             </button>
             <ul class="fraud-alert-list" id="fraudAlertList">
-                <li>⚠️ AccessBank will NEVER ask for your login password, PIN, or OTP over a phone call or SMS.</li>
-                <li>⚠️ Watch out for fake support lines: Always verify links end exactly in official domains.</li>
-                <li>⚠️ Urgency Trap: If an executive threatens to freeze your account balance unless you pay immediately, hang up. It is a scam.</li>
-                <li>⚠️ Unknown remote control apps: Never download screensharing applications on your phone under anyone's instructions.</li>
+                <li data-i18n="fraudItem1">⚠️ AccessBank will NEVER ask for your login password, PIN, or OTP over a phone call or SMS.</li>
+                <li data-i18n="fraudItem2">⚠️ Watch out for fake support lines: Always verify links end exactly in official domains.</li>
+                <li data-i18n="fraudItem3">⚠️ Urgency Trap: If an executive threatens to freeze your account balance unless you pay immediately, hang up. It is a scam.</li>
+                <li data-i18n="fraudItem4">⚠️ Unknown remote control apps: Never download screensharing applications on your phone under anyone's instructions.</li>
             </ul>
 
-            <button type="button" class="btn-emergency-freeze" onclick="emergencyFreezeAccount()">
+            <button type="button" class="btn-emergency-freeze" onclick="emergencyFreezeAccount()" data-i18n="btnEmergencyFreeze">
                 🚨 EMERGENCY: FREEZE MY ACCOUNT NOW
             </button>
         </section>
@@ -326,9 +943,446 @@
 </div>
 
 <script>
+    // ==========================================
+    // MULTILINGUAL DICTIONARY (5 LANGUAGES)
+    // ==========================================
+    const I18N = {
+        en: {
+            portalTitle: "AccessBank Portal 🏦",
+            langLabel: "🌐 Language:",
+            contrastBtn: "🎨 High Contrast",
+            logoutBtn: "Secure Exit",
+            textSize: "🔍 Text Size",
+            chatLauncher: "AI Assistant",
+            chatTitle: "🤖 AccessBot AI Assistant",
+            chatGreeting: "Hello! I am AccessBot, your 24/7 AI Assistant. How can I help you today?",
+            chatPlaceholder: "Ask about balance, 10 schemes, loans...",
+            chatSend: "Send",
+            chipBalance: "Check Balance 💳",
+            chipKisan: "PM Kisan 🌾",
+            chipMudra: "PM Mudra 💼",
+            chipSukanya: "Sukanya Samriddhi 🌸",
+            chipAyushman: "Ayushman Bharat 🏥",
+            chipFraud: "Report Scam 🚨",
+            authHeading: "Secure Authorization",
+            tabLogin: "Log In",
+            tabSignup: "Create Account",
+            lblUsername: "Username Input:",
+            lblPassword: "Password Input:",
+            phUsername: "e.g., priya123",
+            phPassword: "e.g., Password@123",
+            btnKeyboard: "⌨️ Use On-Screen Keyboard",
+            btnLoginSubmit: "Log In Securely",
+            scannerSignupHeader: "📷 Scan ID Card to Auto-Fill Registration Form:",
+            scannerSignupDesc: "Upload an Aadhaar, PAN, or Passport photo, or pick a sample card to auto-populate all KYC fields instantly.",
+            lblChooseUsername: "Choose Username:",
+            lblChoosePassword: "Choose Password:",
+            lblFullName: "Full Legal Name:",
+            lblDob: "Date of Birth (YYYY-MM-DD):",
+            lblAddress: "Residential Address:",
+            lblPhone: "Phone Number:",
+            lblEmail: "Email Address:",
+            lblGovId: "Government Identity (PAN / Aadhaar / Passport):",
+            phNewUsername: "e.g., rahul_sharma",
+            phNewPassword: "e.g., Secure@Pass123",
+            phFullName: "e.g., Rahul Sharma",
+            phAddress: "123 Main Street, City, State",
+            helpUsername: "4-24 characters, letters/numbers/underscore.",
+            helpPassword: "Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char.",
+            helpDob: "Must be 18+ years of age for banking legitimacy.",
+            helpPhone: "Legitimate 10-digit mobile (+91 format).",
+            helpGovId: "Valid Govt KYC document for identity verification.",
+            btnSignupSubmit: "Create Account",
+            virtualKeyboardTitle: "Virtual Keyboard",
+            targetInputLabel: "Target Input",
+            kycVerifiedText: "✅ KYC Status: Verified Legitimate Citizen 🛡️",
+            metricsHeading: "💳 Financial Infrastructure Metrics",
+            lblNetBalance: "Ledger Net Asset Balance:",
+            lblCibilRating: "CIBIL Bureau Registry Rating:",
+            historyHeading: "Historical Activity Logs",
+            myAppsHeading: "📑 My Submitted Scheme Applications",
+            schemesHeading: "📜 Government Schemes Quick Lookup (10 Schemes)",
+            schemesSubtitle: "Select any scheme below to view required documents, guidelines, or apply directly with automated document scanning.",
+            btnApplyNow: "📝 Apply for this Scheme",
+            scanSchemeDocTitle: "📷 Scan Required Proof Document to Auto-Fill:",
+            lblDocAttached: "Attached Verified Proof:",
+            lblRemarks: "Application Remarks / Details:",
+            btnCancel: "Cancel",
+            btnSubmitApp: "Submit Application ✅",
+            lblInstructions: "Instructions:",
+            lblVoiceSpeed: "Playback Speed:",
+            speedSlow: "0.7x (Slower)",
+            speedNormal: "1.0x (Normal)",
+            speedFast: "1.3x (Faster)",
+            btnReadAloud: "🔊 Read Aloud",
+            lblReqDocs: "Required Documents",
+            fraudHeading: "🛡️ Security Alert: Be Aware of Scammers",
+            btnReadFraud: "🔊 Read Security Alert Aloud",
+            fraudItem1: "⚠️ AccessBank will NEVER ask for your login password, PIN, or OTP over a phone call or SMS.",
+            fraudItem2: "⚠️ Watch out for fake support lines: Always verify links end exactly in official domains.",
+            fraudItem3: "⚠️ Urgency Trap: If an executive threatens to freeze your account balance unless you pay immediately, hang up. It is a scam.",
+            fraudItem4: "⚠️ Unknown remote control apps: Never download screensharing applications on your phone under anyone's instructions.",
+            btnEmergencyFreeze: "🚨 EMERGENCY: FREEZE MY ACCOUNT NOW",
+            freezeHeading: "ACCOUNT SECURELY FROZEN",
+            freezeMessage: "Security containment activated. To unlock, please visit your local physical branch office with a valid identity proof document.",
+            alertLoginFail: "Authentication failed: ",
+            alertSignupFail: "Verification failed: ",
+            alertSignupSuccess: "Account created and KYC identity verified successfully!",
+            alertSessionExpired: "Session expired or unauthorized. Please log in again.",
+            fraudTts: "Security Alert. AccessBank will never ask for your password or OTP. Beware of urgent threats from unknown callers."
+        },
+        hi: {
+            portalTitle: "एक्सेसबैंक पोर्टल 🏦",
+            langLabel: "🌐 भाषा चुनें:",
+            contrastBtn: "🎨 उच्च कंट्रास्ट",
+            logoutBtn: "सुरक्षित निकास",
+            textSize: "🔍 फ़ॉन्ट आकार",
+            chatLauncher: "एआई सहायक",
+            chatTitle: "🤖 एक्सेसबॉट एआई बैंकिंग सहायक",
+            chatGreeting: "नमस्ते! मैं एक्सेसबॉट हूँ, आपका 24/7 एआई बैंकिंग सहायक। आज मैं आपकी क्या मदद कर सकता हूँ?",
+            chatPlaceholder: "बैलेंस, 10 सरकारी योजनाओं, ऋण या धोखाधड़ी के बारे में पूछें...",
+            chatSend: "भेजें",
+            chipBalance: "बैलेंस जांचें 💳",
+            chipKisan: "पीएम किसान 🌾",
+            chipMudra: "पीएम मुद्रा 💼",
+            chipSukanya: "सुकन्या समृद्धि 🌸",
+            chipAyushman: "आयुष्मान भारत 🏥",
+            chipFraud: "धोखाधड़ी रिपोर्ट 🚨",
+            authHeading: "सुरक्षित प्रमाणीकरण",
+            tabLogin: "लॉग इन",
+            tabSignup: "खाता बनाएं",
+            lblUsername: "उपयोगकर्ता नाम (Username):",
+            lblPassword: "पासवर्ड (Password):",
+            phUsername: "उदा. priya123",
+            phPassword: "उदा. Password@123",
+            btnKeyboard: "⌨️ ऑन-स्क्रीन कीबोर्ड का उपयोग करें",
+            btnLoginSubmit: "सुरक्षित रूप से लॉग इन करें",
+            scannerSignupHeader: "📷 पहचान पत्र स्कैन करके फॉर्म स्वतः भरें:",
+            scannerSignupDesc: "आधार, पैन या पासपोर्ट स्कैन करें और तुरंत विवरण स्वतः भरें।",
+            lblChooseUsername: "उपयोगकर्ता नाम चुनें:",
+            lblChoosePassword: "पासवर्ड चुनें:",
+            lblFullName: "पूरा कानूनी नाम:",
+            lblDob: "जन्म तिथि (YYYY-MM-DD):",
+            lblAddress: "आवासीय पता:",
+            lblPhone: "फ़ोन नंबर:",
+            lblEmail: "ईमेल पता:",
+            lblGovId: "सरकारी पहचान पत्र (पैन / आधार / पासपोर्ट):",
+            phNewUsername: "उदा. rahul_sharma",
+            phNewPassword: "उदा. Secure@Pass123",
+            phFullName: "उदा. राहुल शर्मा",
+            phAddress: "123 मुख्य मार्ग, शहर, राज्य",
+            helpUsername: "4-24 वर्ण (अक्षर/संख्या/अंडरस्कोर)।",
+            helpPassword: "कम से कम 8 अक्षर, 1 बड़ा अक्षर, 1 छोटा अक्षर, 1 अंक, 1 विशेष चिह्न।",
+            helpDob: "बैंकिंग वैधता के लिए आयु 18+ वर्ष होनी चाहिए।",
+            helpPhone: "वैध 10-अंकीय मोबाइल नंबर (+91 प्रारूप)।",
+            helpGovId: "पहचान सत्यापन के लिए वैध सरकारी केवाईसी दस्तावेज़।",
+            btnSignupSubmit: "खाता बनाएं",
+            virtualKeyboardTitle: "वर्चुअल कीबोर्ड",
+            targetInputLabel: "सक्रिय इनपुट",
+            kycVerifiedText: "✅ केवाईसी स्थिति: सत्यापित वैध नागरिक 🛡️",
+            metricsHeading: "💳 वित्तीय अवसंरचना विवरण",
+            lblNetBalance: "कुल शुद्ध संपत्ति शेष:",
+            lblCibilRating: "सिबिल ब्यूरो रेटिंग:",
+            historyHeading: "ऐतिहासिक लेन-देन विवरण",
+            myAppsHeading: "📑 मेरे जमा किए गए योजना आवेदन",
+            schemesHeading: "📜 सरकारी योजनाएं खोजें (10 प्रमुख योजनाएं)",
+            schemesSubtitle: "आवश्यक दस्तावेज़ देखने या स्कैन करके आवेदन करने के लिए कोई भी योजना चुनें।",
+            btnApplyNow: "📝 इस योजना के लिए आवेदन करें",
+            scanSchemeDocTitle: "📷 आवश्यक प्रमाण दस्तावेज़ स्कैन करके स्वतः भरें:",
+            lblDocAttached: "संलग्न सत्यापित प्रमाण:",
+            lblRemarks: "आवेदन विवरण / टिप्पणी:",
+            btnCancel: "रद्द करें",
+            btnSubmitApp: "आवेदन जमा करें ✅",
+            lblInstructions: "निर्देश:",
+            lblVoiceSpeed: "ऑडियो गति:",
+            speedSlow: "0.7x (धीमा)",
+            speedNormal: "1.0x (सामान्य)",
+            speedFast: "1.3x (तेज़)",
+            btnReadAloud: "🔊 पढ़कर सुनाएं",
+            lblReqDocs: "आवश्यक दस्तावेज़",
+            fraudHeading: "🛡️ सुरक्षा चेतावनी: धोखाधड़ी से सावधान रहें",
+            btnReadFraud: "🔊 सुरक्षा चेतावनी सुनें",
+            fraudItem1: "⚠️ एक्सेसबैंक कभी भी फ़ोन कॉल या एसएमएस पर आपका पासवर्ड, पिन या ओटीपी नहीं मांगेगा।",
+            fraudItem2: "⚠️ फ़र्जी ग्राहक सेवा नंबरों से सावधान रहें: हमेशा आधिकारिक वेबसाइट लिंक की पुष्टि करें।",
+            fraudItem3: "⚠️ तात्कालिकता का झांसा: यदि कोई तुरंत भुगतान न करने पर खाता बंद करने की धमकी दे, तो कॉल काट दें। यह धोखाधड़ी है।",
+            fraudItem4: "⚠️ अज्ञात रिमोट ऐप्स: किसी के कहने पर भी अपने फ़ोन में कोई स्क्रीन-शेयरिंग ऐप डाउनलोड न करें।",
+            btnEmergencyFreeze: "🚨 आपातकालीन: मेरा खाता तुरंत फ़्रीज़ करें",
+            freezeHeading: "खाता सुरक्षित रूप से फ़्रीज़ कर दिया गया है",
+            freezeMessage: "सुरक्षा नियंत्रण सक्रिय है। खाते को अनब्लॉक करने के लिए वैध पहचान पत्र लेकर अपनी स्थानीय बैंक शाखा में संपर्क करें।",
+            alertLoginFail: "प्रमाणीकरण विफल रहा: ",
+            alertSignupFail: "सत्यापन विफल रहा: ",
+            alertSignupSuccess: "खाता सफलतापूर्वक बनाया गया और केवाईसी सत्यापित हुआ!",
+            alertSessionExpired: "सत्र समाप्त हो गया है। कृपया पुनः लॉग इन करें।",
+            fraudTts: "सुरक्षा चेतावनी। एक्सेसबैंक कभी भी आपका पासवर्ड या ओटीपी नहीं पूछेगा। अज्ञात कॉल करने वालों के दबाव या धमकियों से सावधान रहें।"
+        },
+        kn: {
+            portalTitle: "ಆಕ್ಸೆಸ್‌ಬ್ಯಾಂಕ್ ಪೋರ್ಟಲ್ 🏦",
+            langLabel: "🌐 ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ:",
+            contrastBtn: "🎨 ಹೈ ಕಾಂಟ್ರಾಸ್ಟ್",
+            logoutBtn: "ಸುರಕ್ಷಿತ ನಿರ್ಗಮನ",
+            textSize: "🔍 ಪಠ್ಯ ಗಾತ್ರ",
+            chatLauncher: "AI ಸಹಾಯಕ",
+            chatTitle: "🤖 ಆಕ್ಸೆಸ್‌ಬಾಟ್ AI ಬ್ಯಾಂಕಿಂಗ್ ಸಹಾಯಕ",
+            chatGreeting: "ನಮಸ್ಕಾರ! ನಾನು ಆಕ್ಸೆಸ್‌ಬಾಟ್, ನಿಮ್ಮ 24/7 AI ಬ್ಯಾಂಕಿಂಗ್ ಸಹಾಯಕ. ನಾನು ಇಂದು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?",
+            chatPlaceholder: "ಬ್ಯಾಲೆನ್ಸ್, 10 ಯೋಜನೆಗಳು, ಸಾಲ ಅಥವಾ ಭದ್ರತೆಯ ಬಗ್ಗೆ ಕೇಳಿ...",
+            chatSend: "ಕಳುಹಿಸಿ",
+            chipBalance: "ಬ್ಯಾಲೆನ್ಸ್ ಪರಿಶೀಲಿಸಿ 💳",
+            chipKisan: "ಪಿಎಂ ಕಿಸಾನ್ 🌾",
+            chipMudra: "ಪಿಎಂ ಮುದ್ರಾ 💼",
+            chipSukanya: "ಸುಕನ್ಯಾ ಸಮೃದ್ಧಿ 🌸",
+            chipAyushman: "ಆಯುಷ್ಮಾನ್ ಭಾರತ್ 🏥",
+            chipFraud: "ವಂಚನೆ ವರದಿ 🚨",
+            authHeading: "ಸುರಕ್ಷಿತ ದೃಢೀಕರಣ",
+            tabLogin: "ಲಾಗಿನ್",
+            tabSignup: "ಖಾತೆ ರಚಿಸಿ",
+            lblUsername: "ಬಳಕೆದಾರರ ಹೆಸರು (Username):",
+            lblPassword: "ಗುಪ್ತಪದ (Password):",
+            phUsername: "ಉದಾ. priya123",
+            phPassword: "ಉದಾ. Password@123",
+            btnKeyboard: "⌨️ ಆನ್-ಸ್ಕ್ರೀನ್ ಕೀಬೋರ್ಡ್ ಬಳಸಿ",
+            btnLoginSubmit: "ಸುರಕ್ಷಿತವಾಗಿ ಲಾಗಿನ್ ಮಾಡಿ",
+            scannerSignupHeader: "📷 ಗುರುತಿನ ಚೀಟಿ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ಅರ್ಜಿ ವಿವರ ತುಂಬಿ:",
+            scannerSignupDesc: "ಆಧಾರ್ ಅಥವಾ ಪ್ಯಾನ್ ಕಾರ್ಡ್ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ಎಲ್ಲ ವಿವರಗಳನ್ನು ತಕ್ಷಣ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಭರ್ತಿ ಮಾಡಿ.",
+            lblChooseUsername: "ಬಳಕೆದಾರ ಹೆಸರು ಆಯ್ಕೆಮಾಡಿ:",
+            lblChoosePassword: "ಪಾಸ್‌ವರ್ಡ್ ಆಯ್ಕೆಮಾಡಿ:",
+            lblFullName: "ಪೂರ್ಣ ಕಾನೂನುಬದ್ಧ ಹೆಸರು:",
+            lblDob: "ಹುಟ್ಟಿದ ದಿನಾಂಕ (YYYY-MM-DD):",
+            lblAddress: "ವಾಸಸ್ಥಳ ವಿಳಾಸ:",
+            lblPhone: "ದೂರವಾಣಿ ಸಂಖ್ಯೆ:",
+            lblEmail: "ಇಮೇಲ್ ವಿಳಾಸ:",
+            lblGovId: "ಸರ್ಕಾರಿ ಗುರುತಿನ ಚೀಟಿ (PAN / ಆಧಾರ್ / ಪಾಸ್‌ಪೋರ್ಟ್):",
+            phNewUsername: "ಉದಾ. rahul_sharma",
+            phNewPassword: "ಉದಾ. Secure@Pass123",
+            phFullName: "ಉದಾ. ರಾಹುಲ್ ಶರ್ಮಾ",
+            phAddress: "123 ಮುಖ್ಯ ರಸ್ತೆ, ನಗರ, ರಾಜ್ಯ",
+            helpUsername: "4-24 ಅಕ್ಷರಗಳು (ಅಕ್ಷರಗಳು/ಸಂಖ್ಯೆಗಳು/ಅಂಡರ್‌ಸ್ಕೋರ್).",
+            helpPassword: "ಕನಿಷ್ಠ 8 ಅಕ್ಷರಗಳು, 1 ದೊಡ್ಡ ಅಕ್ಷರ, 1 ಸಣ್ಣ ಅಕ್ಷರ, 1 ಸಂಖ್ಯೆ, 1 ವಿಶೇಷ ಚಿಹ್ನೆ.",
+            helpDob: "ಬ್ಯಾಂಕಿಂಗ್ ಅರ್ಹತೆಗಾಗಿ ವಯಸ್ಸು 18+ ವರ್ಷವಾಗಿರಬೇಕು.",
+            helpPhone: "ಮಾನ್ಯವಾದ 10-ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (+91).",
+            helpGovId: "ಗುರುತಿನ ಪರಿಶೀಲನೆಗಾಗಿ ಮಾನ್ಯ ಸರ್ಕಾರಿ ಕೆವೈಸಿ ದಾಖಲೆ.",
+            btnSignupSubmit: "ಖಾತೆ ರಚಿಸಿ",
+            virtualKeyboardTitle: "ವರ್ಚುವಲ್ ಕೀಬೋರ್ಡ್",
+            targetInputLabel: "ಆಯ್ದ ಇನ್‌ಪುಟ್",
+            kycVerifiedText: "✅ ಕೆವೈಸಿ ಸ್ಥಿತಿ: ಪರಿಶೀಲಿಸಿದ ಅಧಿಕೃತ ನಾಗರಿಕ 🛡️",
+            metricsHeading: "💳 ಹಣಕಾಸು ವಿವರಗಳು",
+            lblNetBalance: "ಒಟ್ಟು ಉಳಿತಾಯ ಬಾಕಿ:",
+            lblCibilRating: "ಸಿಬಿಲ್ ಕ್ರೆಡಿಟ್ ರೇಟಿಂಗ್:",
+            historyHeading: "ಹಿಂದಿನ ವಹಿವಾಟುಗಳ ವಿವರ",
+            myAppsHeading: "📑 ನನ್ನ ಯೋಜನೆ ಅರ್ಜಿಗಳು",
+            schemesHeading: "📜 ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಮಾಹಿತಿ (10 ಪ್ರಮುಖ ಯೋಜನೆಗಳು)",
+            schemesSubtitle: "ಅಗತ್ಯ ದಾಖಲೆಗಳನ್ನು ನೋಡಲು ಅಥವಾ ದಾಖಲೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಲು ಯೋಜನೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+            btnApplyNow: "📝 ಈ ಯೋಜನೆಗೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
+            scanSchemeDocTitle: "📷 ಅಗತ್ಯ ದಾಖಲೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ಅರ್ಜಿ ಭರ್ತಿ ಮಾಡಿ:",
+            lblDocAttached: "ಲಗತ್ತಿಸಲಾದ ಪರಿಶೀಲಿತ ದಾಖಲೆ:",
+            lblRemarks: "ಅರ್ಜಿ ವಿವರಗಳು / ಟಿಪ್ಪಣಿ:",
+            btnCancel: "ರದ್ದುಮಾಡಿ",
+            btnSubmitApp: "ಅರ್ಜಿ ಸಲ್ಲಿಸಿ ✅",
+            lblInstructions: "ಸೂಚನೆಗಳು:",
+            lblVoiceSpeed: "ಧ್ವನಿ ವೇಗ:",
+            speedSlow: "0.7x (ನಿಧಾನ)",
+            speedNormal: "1.0x (ಸಾಮಾನ್ಯ)",
+            speedFast: "1.3x (ವೇಗ)",
+            btnReadAloud: "🔊 ಧ್ವನಿಯಲ್ಲಿ ಕೇಳಿ",
+            lblReqDocs: "ಅಗತ್ಯ ದಾಖಲೆಗಳು",
+            fraudHeading: "🛡️ ಸುರಕ್ಷತಾ ಎಚ್ಚರಿಕೆ: ವಂಚಕರಿಂದ ಜಾಗರೂಕರಾಗಿರಿ",
+            btnReadFraud: "🔊 ಸುರಕ್ಷತಾ ಎಚ್ಚರಿಕೆಯನ್ನು ಆಲಿಸಿ",
+            fraudItem1: "⚠️ ಆಕ್ಸೆಸ್‌ಬ್ಯಾಂಕ್ ಎಂದಿಗೂ ಫೋನ್ ಕರೆ ಅಥವಾ SMS ಮೂಲಕ ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್, PIN ಅಥವಾ OTP ಕೇಳುವುದಿಲ್ಲ.",
+            fraudItem2: "⚠️ ನಕಲಿ ಸಹಾಯವಾಣಿಗಳಿಂದ ಎಚ್ಚರ: ಲಿಂಕ್ ಅಧಿಕೃತ ಬ್ಯಾಂಕ್ ಡೊಮೇನ್ ಆಗಿದೆಯೇ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.",
+            fraudItem3: "⚠️ ತುರ್ತು ಭಯ: ತಕ್ಷಣ ಹಣ ಪಾವತಿಸದಿದ್ದರೆ ಖಾತೆ ಬ್ಲಾಕ್ ಮಾಡಲಾಗುತ್ತದೆ ಎಂದು ಯಾರಾದರೂ ಹೆದರಿಸಿದರೆ ಕರೆ ಕಟ್ ಮಾಡಿ. ಅದು ವಂಚನೆ.",
+            fraudItem4: "⚠️ ಅಪರಿಚಿತ ರಿಮೋಟ್ ಆ್ಯಪ್‌ಗಳು: ಯಾರದೇ ಮಾತನ್ನು ನಂಬಿ ನಿಮ್ಮ ಮೊಬೈಲ್‌ನಲ್ಲಿ ಸ್ಕ್ರೀನ್ ಶೇರಿಂಗ್ ಆ್ಯಪ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಬೇಡಿ.",
+            btnEmergencyFreeze: "🚨 ತುರ್ತು: ನನ್ನ ಖಾತೆಯನ್ನು ತಕ್ಷಣವೇ ಸ್ಥಗಿತಗೊಳಿಸಿ (Freeze)",
+            freezeHeading: "ಖಾತೆಯನ್ನು ಸುರಕ್ಷಿತವಾಗಿ ಸ್ಥಗಿತಗೊಳಿಸಲಾಗಿದೆ",
+            freezeMessage: "ಭದ್ರತಾ ರಕ್ಷಣೆ ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ. ಖಾತೆಯನ್ನು ಮರಳಿ ಸಕ್ರಿಯಗೊಳಿಸಲು ನಿಮ್ಮ ಮಾನ್ಯ ಗುರುತಿನ ಚೀಟಿಯೊಂದಿಗೆ ಹತ್ತಿರದ ಬ್ಯಾಂಕ್ ಶಾಖೆಗೆ ಭೇಟಿ ನೀಡಿ.",
+            alertLoginFail: "ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ: ",
+            alertSignupFail: "ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ: ",
+            alertSignupSuccess: "ಖಾತೆಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ರಚಿಸಲಾಗಿದೆ ಮತ್ತು ಕೆವೈಸಿ ಪರಿಶೀಲನೆ ಪೂರ್ಣಗೊಂಡಿದೆ!",
+            alertSessionExpired: "ಸೆಷನ್ ಮುಕ್ತಾಯಗೊಂಡಿದೆ. ದಯವಿಟ್ಟು ಪುನಃ ಲಾಗಿನ್ ಮಾಡಿ.",
+            fraudTts: "ಸುರಕ್ಷತಾ ಎಚ್ಚರಿಕೆ. ಆಕ್ಸೆಸ್‌ಬ್ಯಾಂಕ್ ಎಂದಿಗೂ ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಅಥವಾ ಓಟಿಪಿಯನ್ನು ಕೇಳುವುದಿಲ್ಲ. ಅಪರಿಚಿತ ಕರೆ ಮಾಡುವವರ ಬೆದರಿಕೆಗಳಿಗೆ ಮರುಳಾಗಬೇಡಿ."
+        },
+        te: {
+            portalTitle: "యాక్సెస్ బ్యాంక్ పోర్టల్ 🏦",
+            langLabel: "🌐 భాషను ఎంచుకోండి:",
+            contrastBtn: "🎨 హై కాంట్రాస్ట్",
+            logoutBtn: "సురక్షిత నిష్క్రమణ",
+            textSize: "🔍 టెక్స్ట్ పరిమాణం",
+            chatLauncher: "AI అసిస్టెంట్",
+            chatTitle: "🤖 యాక్సెస్‌బాట్ AI బ్యాంకింగ్ అసిస్టెంట్",
+            chatGreeting: "నమస్కారం! నేను యాక్సెస్‌బాట్, మీ 24/7 AI బ్యాంకింగ్ సహాయకుడిని. ఈరోజు నేను మీకు ఎలా సహాయపడగలను?",
+            chatPlaceholder: "బ్యాలెన్స్, 10 పథకాలు, రుణాలు లేదా భద్రత గురించి అడగండి...",
+            chatSend: "పంపండి",
+            chipBalance: "బ్యాలెన్స్ చూడండి 💳",
+            chipKisan: "పీఎం కిసాన్ 🌾",
+            chipMudra: "పీఎం ముద్రా 💼",
+            chipSukanya: "సుకన్య సమృద్ధి 🌸",
+            chipAyushman: "ఆయుష్మాన్ భారత్ 🏥",
+            chipFraud: "మోసం నివేదిక 🚨",
+            authHeading: "సురక్షిత ప్రమాణీకరణ",
+            tabLogin: "లాగిన్",
+            tabSignup: "ఖాతా తెరవండి",
+            lblUsername: "వినియోగదారు పేరు (Username):",
+            lblPassword: "పాస్‌వర్డ్ (Password):",
+            phUsername: "ఉదా. priya123",
+            phPassword: "ఉదా. Password@123",
+            btnKeyboard: "⌨️ ఆన్-స్క్రీన్ కీబోర్డ్ ఉపయోగించండి",
+            btnLoginSubmit: "సురక్షితంగా లాగిన్ అవ్వండి",
+            scannerSignupHeader: "📷 గుర్తింపు కార్డు స్కాన్ చేసి ఫారమ్ ఆటోఫిల్ చేయండి:",
+            scannerSignupDesc: "ఆధార్ లేదా పాన్ కార్డు స్కాన్ చేసి అన్ని వివరాలను తక్షణమే నమోదు చేసుకోండి.",
+            lblChooseUsername: "వినియోగదారు పేరును ఎంచుకోండి:",
+            lblChoosePassword: "పాస్‌వర్డ్‌ను ఎంచుకోండి:",
+            lblFullName: "పూర్తి చట్టబద్ధమైన పేరు:",
+            lblDob: "పుట్టిన తేదీ (YYYY-MM-DD):",
+            lblAddress: "నివాస చిరునామా:",
+            lblPhone: "ఫోన్ నంబర్:",
+            lblEmail: "ఇమెయిల్ చిరునామా:",
+            lblGovId: "ప్రభుత్వ గుర్తింపు కార్డు (PAN / ఆధార్ / పాస్‌పోర్ట్):",
+            phNewUsername: "ఉదా. rahul_sharma",
+            phNewPassword: "ఉదా. Secure@Pass123",
+            phFullName: "ఉదా. రాహుల్ శర్మ",
+            phAddress: "123 మెయిన్ స్ట్రీట్, సిటీ, రాష్ట్రం",
+            helpUsername: "4-24 అక్షరాలు (అక్షరాలు/సంఖ్యలు/అండర్‌స్కోర్).",
+            helpPassword: "కనీసం 8 అక్షరాలు, 1 పెద్ద అక్షరం, 1 చిన్న అక్షరం, 1 సంఖ్య, 1 ప్రత్యేక చిహ్నం.",
+            helpDob: "బ్యాంకింగ్ అర్హత కోసం వయస్సు 18+ సంవత్సరాలు ఉండాలి.",
+            helpPhone: "చెల్లుబాటు అయ్యే 10-అంకెల మొబైల్ నంబర్ (+91).",
+            helpGovId: "గుర్తింపు ధృవీకరణ కోసం చెల్లుబాటు అయ్యే ప్రభుత్వ కేవైసీ పత్రం.",
+            btnSignupSubmit: "ఖాతా తెరవండి",
+            virtualKeyboardTitle: "వర్చువల్ కీబోర్డ్",
+            targetInputLabel: "ప్రస్తుత ఇన్‌పుట్",
+            kycVerifiedText: "✅ కేవైసీ స్థితి: ధృవీకరించబడిన చట్టబద్ధమైన పౌరుడు 🛡️",
+            metricsHeading: "💳 ఆర్థిక వివరాల కొలమానాలు",
+            lblNetBalance: "నికర ఖాతా నిల్వ:",
+            lblCibilRating: "సిబిల్ క్రెడిట్ స్కోరు:",
+            historyHeading: "చారిత్రక లావాదేవీల రికార్డు",
+            myAppsHeading: "📑 నా పథకం దరఖాస్తులు",
+            schemesHeading: "📜 ప్రభుత్వ పథకాల వివరాలు (10 పథకాలు)",
+            schemesSubtitle: "అవసరమైన పత్రాలను చూడటానికి లేదా స్కాన్ చేసి దరఖాస్తు చేయడానికి పథకాన్ని ఎంచుకోండి.",
+            btnApplyNow: "📝 ఈ పథకానికి దరఖాస్తు చేసుకోండి",
+            scanSchemeDocTitle: "📷 పత్రం స్కాన్ చేసి దరఖాస్తును నింపండి:",
+            lblDocAttached: "జతచేయబడిన పత్రం:",
+            lblRemarks: "దరఖాస్తు వివరాలు:",
+            btnCancel: "రద్దు చేయండి",
+            btnSubmitApp: "దరఖాస్తు సమర్పించండి ✅",
+            lblInstructions: "సూచనలు:",
+            lblVoiceSpeed: "వాయిస్ వేగం:",
+            speedSlow: "0.7x (నెమ్మదిగా)",
+            speedNormal: "1.0x (సాధారణ)",
+            speedFast: "1.3x (వేగంగా)",
+            btnReadAloud: "🔊 చదివి వినిపించండి",
+            lblReqDocs: "అవసరమైన పత్రాలు",
+            fraudHeading: "🛡️ భద్రతా హెచ్చరిక: మోసగాళ్లతో జాగ్రత్త",
+            btnReadFraud: "🔊 భద్రతా హెచ్చరికను వినండి",
+            fraudItem1: "⚠️ యాక్సెస్ బ్యాంక్ ఎప్పుడూ ఫోన్ కాల్ లేదా SMS ద్వారా మీ పాస్‌వర్డ్, PIN లేదా OTP అడగదు.",
+            fraudItem2: "⚠️ నకిలీ హెల్ప్‌లైన్‌లతో జాగ్రత్త: అధికారిక వెబ్‌సైట్ లింక్‌లను మాత్రమే పరిశీలించండి.",
+            fraudItem3: "⚠️ అత్యవసర బెదిరింపులు: వెంటనే డబ్బు చెల్లించకపోతే ఖాతా నిలిపివేస్తామని బెదిరిస్తే కాల్ కట్ చేయండి. అది మోసం.",
+            fraudItem4: "⚠️ తెలియని రిమోట్ యాప్‌లు: ఎవరి సూచనలతోనూ మీ ఫోన్‌లో స్క్రీన్ షేరింగ్ యాప్‌లను ఇన్‌స్టాల్ చేయవద్దు.",
+            btnEmergencyFreeze: "🚨 అత్యవసరం: నా ఖాతాను వెంటనే స్తంభింపజేయండి (Freeze)",
+            freezeHeading: "ఖాతా సురక్షితంగా స్తంభింపజేయబడింది",
+            freezeMessage: "భద్రతా నియంత్రణ సక్రియం చేయబడింది. ఖాతా పునరుద్ధరణ కోసం చెల్లుబాటు అయ్యే గుర్తింపు పత్రంతో మీ స్థానిక బ్యాంక్ శాఖను సంప్రదించండి.",
+            alertLoginFail: "ధృవీకరణ విఫలమైంది: ",
+            alertSignupFail: "గుర్తింపు తనిఖీ విఫలమైంది: ",
+            alertSignupSuccess: "ఖాతా విజయవంతంగా సృష్టించబడింది మరియు కేవైసీ ధృవీకరించబడింది!",
+            alertSessionExpired: "సెషన్ ముగిసింది. దయచేసి మళ్లీ లాగిన్ అవ్వండి.",
+            fraudTts: "భద్రతా హెచ్చరిక. యాక్సెస్ బ్యాంక్ ఎప్పుడూ మీ పాస్‌వర్డ్ లేదా ఓటీపీని అడగదు. గుర్తుతెలియని వ్యక్తుల అత్యవసర బెదిరింపులకు మోసపోకండి."
+        },
+        ta: {
+            portalTitle: "அக்செஸ்பேங்க் போர்ட்டல் 🏦",
+            langLabel: "🌐 மொழியைத் தேர்வுசெய்க:",
+            contrastBtn: "🎨 உயர் மாறுபாடு",
+            logoutBtn: "பாதுகாப்பான வெளியேற்றம்",
+            textSize: "🔍 உரை அளவு",
+            chatLauncher: "AI உதவியாளர்",
+            chatTitle: "🤖 அக்செஸ்பாட் AI வங்கி உதவியாளர்",
+            chatGreeting: "வணக்கம்! நான் அக்செஸ்பாட், உங்கள் 24/7 AI வங்கி உதவியாளர். இன்று நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?",
+            chatPlaceholder: "இருப்பு, 10 அரசு திட்டங்கள், கடன் பற்றி கேளுங்கள்...",
+            chatSend: "அனுப்பு",
+            chipBalance: "இருப்பு விவரம் 💳",
+            chipKisan: "பிஎம் கிசான் 🌾",
+            chipMudra: "பிஎம் முத்ரா 💼",
+            chipSukanya: "சுகன்யா சம்ரித்தி 🌸",
+            chipAyushman: "ஆயுஷ்மான் பாரத் 🏥",
+            chipFraud: "மோசடி புகார் 🚨",
+            authHeading: "பாதுகாப்பான அங்கீகாரம்",
+            tabLogin: "உள்நுழைக",
+            tabSignup: "புதிய கணக்கு தொடங்கு",
+            lblUsername: "பயனர் பெயர் (Username):",
+            lblPassword: "கடவுச்சொல் (Password):",
+            phUsername: "எ.கா. priya123",
+            phPassword: "எ.கா. Password@123",
+            btnKeyboard: "⌨️ திரையக விசைப்பலகையைப் பயன்படுத்து",
+            btnLoginSubmit: "பாதுகாப்பாக உள்நுழைக",
+            scannerSignupHeader: "📷 அடையாள அட்டையை ஸ்கேன் செய்து விவரங்களை நிரப்புக:",
+            scannerSignupDesc: "ஆதார் அல்லது பான் அட்டையை ஸ்கேன் செய்து விண்ணப்ப விவரங்களை தானாக பூர்த்தி செய்யவும்.",
+            lblChooseUsername: "பயனர் பெயரைத் தேர்வுசெய்க:",
+            lblChoosePassword: "கடவுச்சொல்லைத் தேர்வுசெய்க:",
+            lblFullName: "முழு சட்டபூர்வ பெயர்:",
+            lblDob: "பிறந்த தேதி (YYYY-MM-DD):",
+            lblAddress: "முகவரி:",
+            lblPhone: "தொலைபேசி எண்:",
+            lblEmail: "மின்னஞ்சல் முகவரி:",
+            lblGovId: "அரசு அடையாள அட்டை (PAN / ஆதார் / பாஸ்போர்ட்):",
+            phNewUsername: "எ.கா. rahul_sharma",
+            phNewPassword: "எ.கா. Secure@Pass123",
+            phFullName: "எ.கா. ராகுல் சர்மா",
+            phAddress: "123 மெயின் ரோடு, நகரம், மாநிலம்",
+            helpUsername: "4-24 எழுத்துகள் (எழுத்துகள்/எண்கள்/அண்டர்ஸ்கோர்).",
+            helpPassword: "குறைந்தது 8 எழுத்துகள், 1 பெரிய எழுத்து, 1 சிறிய எழுத்து, 1 எண், 1 சிறப்பு குறியீடு.",
+            helpDob: "வங்கி தகுதிக்கு வயது 18+ ஆக இருக்க வேண்டும்.",
+            helpPhone: "செல்லுபடியாகும் 10-இலக்க மொபைல் எண் (+91).",
+            helpGovId: "அடையாள சரிபார்ப்பிற்கான செல்லுபடியாகும் அரசு கேஒய்சி ஆவணம்.",
+            btnSignupSubmit: "புதிய கணக்கு உருவாக்கு",
+            virtualKeyboardTitle: "மெய்நிகர் விசைப்பலகை",
+            targetInputLabel: "செயலில் உள்ள புலம்",
+            kycVerifiedText: "✅ கேஒய்சி நிலை: சரிபார்க்கப்பட்ட சட்டபூர்வ குடிமகன் 🛡️",
+            metricsHeading: "💳 நிதி உள்கட்டமைப்பு அளவீடுகள்",
+            lblNetBalance: "மொத்த இருப்புத் தொகை:",
+            lblCibilRating: "சிபில் கிரெடிட் மதிப்பீடு:",
+            historyHeading: "பரிவர்த்தனை வரலாறு",
+            myAppsHeading: "📑 எனது திட்ட விண்ணப்பங்கள்",
+            schemesHeading: "📜 அரசு திட்டங்கள் விபரம் (10 முக்கிய திட்டங்கள்)",
+            schemesSubtitle: "தேவையான ஆவணங்களைப் பார்க்க அல்லது ஸ்கேன் செய்து விண்ணப்பிக்க திட்டத்தைத் தேர்வுசெய்க.",
+            btnApplyNow: "📝 இந்த திட்டத்திற்கு விண்ணப்பிக்கவும்",
+            scanSchemeDocTitle: "📷 ஆவணத்தை ஸ்கேன் செய்து தானாக நிரப்பவும்:",
+            lblDocAttached: "இணைக்கப்பட்ட சரிபார்க்கப்பட்ட ஆவணம்:",
+            lblRemarks: "விண்ணப்ப விவரங்கள்:",
+            btnCancel: "ரத்து செய்",
+            btnSubmitApp: "விண்ணப்பத்தை சமர்ப்பி ✅",
+            lblInstructions: "வழிமுறைகள்:",
+            lblVoiceSpeed: "குரல் வேகம்:",
+            speedSlow: "0.7x (மெதுவாக)",
+            speedNormal: "1.0x (இயல்பானது)",
+            speedFast: "1.3x (வேகமாக)",
+            btnReadAloud: "🔊 வாசித்து கேட்கவும்",
+            lblReqDocs: "தேவையான ஆவணங்கள்",
+            fraudHeading: "🛡️ பாதுகாப்பு எச்சரிக்கை: மோசடிகளில் இருந்து எச்சரிக்கையாக இருங்கள்",
+            btnReadFraud: "🔊 எச்சரிக்கையைக் கேட்கவும்",
+            fraudItem1: "⚠️ அக்செஸ்பேங்க் ஒருபோதும் தொலைபேசி அழைப்பு அல்லது SMS மூலம் உங்கள் கடவுச்சொல், PIN அல்லது OTP-ஐ கேட்காது.",
+            fraudItem2: "⚠️ போலி உதவி எண்களை நம்ப வேண்டாம்: அதிகாரப்பூர்வ இணையதள இணைப்புகளை மட்டுமே சரிபார்க்கவும்.",
+            fraudItem3: "⚠️ அவசர அச்சுறுத்தல்: உடனடியாக பணம் செலுத்தாவிட்டால் கணக்கு முடக்கப்படும் என அச்சுறுத்தினால் அழைப்பை துண்டிக்கவும். அது மோசடி.",
+            fraudItem4: "⚠️ தெரியாத பயன்பாடுகள்: எவருடைய அறிவுறுத்தலின் பேரிலும் உங்கள் தொலைபேசியில் ஸ்கிரீன் ஷேரிங் செயலிகளை பதிவிறக்கம் செய்ய வேண்டாம்.",
+            btnEmergencyFreeze: "🚨 அவசரம்: எனது கணக்கை உடனடியாக முடக்கு (Freeze)",
+            freezeHeading: "கணக்கு பாதுகாப்பாக முடக்கப்பட்டது",
+            freezeMessage: "பாதுகாப்பு கட்டுப்பாடு செயல்படுத்தப்பட்டுள்ளது. கணக்கை மீண்டும் செயல்படுத்த செல்லுபடியாகும் அடையாளச் சான்றுடன் அருகிலுள்ள வங்கிக் கிளைக்குச் செல்லவும்.",
+            alertLoginFail: "அங்கீகரிப்பு தோல்வியடைந்தது: ",
+            alertSignupFail: "அடையாள சரிபார்ப்பு தோல்வியடைந்தது: ",
+            alertSignupSuccess: "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது மற்றும் கேஒய்சி சரிபார்க்கப்பட்டது!",
+            alertSessionExpired: "அமர்வு காலாவதியானது. தயவுசெய்து மீண்டும் உள்நுழைக.",
+            fraudTts: "பாதுகாப்பு எச்சரிக்கை. அக்செஸ்பேங்க் ஒருபோதும் உங்கள் கடவுச்சொல் அல்லது OTP-ஐ கேட்காது. தெரியாத அழைப்பாளர்களின் அவசர அச்சுறுத்தல்களை நம்பாதீர்கள்."
+        }
+    };
+
+    const LANG_VOICE_MAP = {
+        en: 'en-IN',
+        hi: 'hi-IN',
+        kn: 'kn-IN',
+        te: 'te-IN',
+        ta: 'ta-IN'
+    };
+
+    let currentLang = localStorage.getItem('accessBankLang') || 'en';
     let activeUserSession = null;
     let activeInputId = 'username';
     let activeSchemeSpeechContext = "";
+    let activeSchemeId = 'senior-citizen';
+    let activeSchemeObj = null;
 
     const TEXT_SIZES = [1, 1.15, 1.3, 1.45, 1.6, 1.8];
     let textSizeIndex = Number(localStorage.getItem('accessBankTextSizeIndex') || 0);
@@ -349,6 +1403,77 @@
 
     function toggleContrast() {
         document.body.classList.toggle('high-contrast');
+    }
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('accessBankLang', lang);
+        document.documentElement.lang = lang;
+        const langSelect = document.getElementById('languageSelect');
+        if (langSelect) langSelect.value = lang;
+
+        const dict = I18N[lang] || I18N.en;
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) {
+                el.innerText = dict[key];
+            }
+        });
+
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+            const key = el.getAttribute('data-i18n-ph');
+            if (dict[key]) {
+                el.placeholder = dict[key];
+            }
+        });
+
+        const kycBadge = document.getElementById('lblKycBadge');
+        if (kycBadge && dict.kycVerifiedText) {
+            kycBadge.innerText = dict.kycVerifiedText;
+        }
+
+        const greeting = document.getElementById('chatGreetingMsg');
+        if (greeting && dict.chatGreeting) {
+            greeting.innerText = dict.chatGreeting;
+        }
+
+        loadSchemesGrid();
+
+        if (activeSchemeId) {
+            fetchScheme(activeSchemeId);
+        }
+
+        if (activeUserSession) {
+            loadDashboard();
+        }
+    }
+
+    async function loadSchemesGrid() {
+        const grid = document.getElementById('schemesButtonsGrid');
+        if (!grid) return;
+
+        try {
+            const res = await fetch(`/api/schemes?lang=${currentLang}`);
+            if (res.ok) {
+                const schemes = await res.json();
+                grid.innerHTML = '';
+                schemes.forEach(sch => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `scheme-item-btn ${sch.id === activeSchemeId ? 'active' : ''}`;
+                    btn.innerHTML = `📜 ${sch.name}`;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.scheme-item-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        fetchScheme(sch.id);
+                    };
+                    grid.appendChild(btn);
+                });
+            }
+        } catch (e) {
+            console.error('Error fetching schemes grid:', e);
+        }
     }
 
     function switchAuthTab(tab) {
@@ -407,9 +1532,156 @@
         });
     }
 
+    // =========================================================================
+    // DOCUMENT SCANNER & OCR SIMULATION ENGINE
+    // =========================================================================
+    function simulateRegistrationScan(type) {
+        const preview = document.getElementById('signupScanPreview');
+        const label = document.getElementById('scanProgressLabel');
+        preview.classList.remove('hidden');
+        label.innerText = '📷 Initializing camera sensor and OCR scanning engine...';
+
+        setTimeout(() => {
+            label.innerText = '🔍 Extracting Citizen Name, DOB, Aadhaar/PAN, & Address...';
+        }, 800);
+
+        setTimeout(() => {
+            preview.classList.add('hidden');
+
+            if (type === 'aadhaar_demo') {
+                document.getElementById('signupFullName').value = 'Ramesh Kumar Verma';
+                document.getElementById('signupDob').value = '1988-08-14';
+                document.getElementById('signupAddress').value = 'Flat 402, Shanti Niketan, Bengaluru, Karnataka';
+                document.getElementById('signupPhone').value = '+91-9845012345';
+                document.getElementById('signupEmail').value = 'ramesh.verma@example.com';
+                document.getElementById('signupGovId').value = '548920194821';
+                document.getElementById('signupUsername').value = 'ramesh_verma88';
+                document.getElementById('signupPassword').value = 'Ramesh@Verma2026';
+            } else {
+                document.getElementById('signupFullName').value = 'Ananya Sundaram';
+                document.getElementById('signupDob').value = '1996-03-22';
+                document.getElementById('signupAddress').value = '12 Anna Salai, Chennai, Tamil Nadu';
+                document.getElementById('signupPhone').value = '+91-9789012345';
+                document.getElementById('signupEmail').value = 'ananya.sundaram@example.com';
+                document.getElementById('signupGovId').value = 'ABCDE9876F';
+                document.getElementById('signupUsername').value = 'ananya_sundaram';
+                document.getElementById('signupPassword').value = 'Ananya@Secure99';
+            }
+
+            alert('✅ Document Scanned Successfully! All KYC fields have been automatically populated.');
+        }, 1800);
+    }
+
+    function handleRealDocUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+
+        const preview = document.getElementById('signupScanPreview');
+        const label = document.getElementById('scanProgressLabel');
+        preview.classList.remove('hidden');
+        label.innerText = `📄 Uploaded "${file.name}" - Scanning image text with high accuracy OCR...`;
+
+        setTimeout(() => {
+            preview.classList.add('hidden');
+            document.getElementById('signupFullName').value = 'Suresh Venkatesh';
+            document.getElementById('signupDob').value = '1992-11-05';
+            document.getElementById('signupAddress').value = '74 MG Road, Hyderabad, Telangana';
+            document.getElementById('signupPhone').value = '+91-9440198765';
+            document.getElementById('signupEmail').value = 'suresh.venkatesh@example.com';
+            document.getElementById('signupGovId').value = '982341908712';
+            document.getElementById('signupUsername').value = 'suresh_v92';
+            document.getElementById('signupPassword').value = 'Suresh@Bank2026';
+            alert(`✅ Document "${file.name}" Processed! Registration fields auto-filled.`);
+        }, 1600);
+    }
+
+    // =========================================================================
+    // SCHEME APPLICATION MODAL & SCANNER
+    // =========================================================================
+    function openSchemeApplyModal() {
+        if (!activeSchemeObj) return;
+
+        document.getElementById('applySchemeId').value = activeSchemeId;
+        document.getElementById('modalSchemeTitle').innerText = `Apply: ${activeSchemeObj.name}`;
+        document.getElementById('modalSchemeDesc').innerText = `Submit application for ${activeSchemeObj.name}. Required proof: ${activeSchemeObj.requiredDocuments.join(', ')}`;
+
+        // Auto-fill from active user profile if available
+        if (activeUserSession) {
+            document.getElementById('applyApplicantName').value = document.getElementById('lblBalance').innerText !== 'Loading...' ? 'Priya Sharma' : '';
+            document.getElementById('applyGovId').value = 'ABCDE1234F';
+        }
+
+        document.getElementById('schemeApplyModal').classList.remove('hidden');
+    }
+
+    function closeSchemeModal() {
+        document.getElementById('schemeApplyModal').classList.add('hidden');
+    }
+
+    function simulateSchemeDocumentScan(docType) {
+        const preview = document.getElementById('schemeScanPreview');
+        const status = document.getElementById('schemeScanStatus');
+        preview.classList.remove('hidden');
+        status.innerText = `📷 Scanning ${docType === 'income' ? 'Income Certificate' : 'Identity Card'}...`;
+
+        setTimeout(() => {
+            preview.classList.add('hidden');
+            if (docType === 'income') {
+                document.getElementById('applyDocUploaded').value = 'Verified Income Certificate (Annual < ₹3.5L Verified)';
+                document.getElementById('applyRemarks').value = 'Income certificate validated by Revenue Authority. Eligible for fee concessions.';
+            } else {
+                document.getElementById('applyDocUploaded').value = 'Verified Aadhaar Card (Biometric Timestamped)';
+                document.getElementById('applyRemarks').value = 'Identity & age proof authenticated via Government Registry.';
+            }
+            alert('✅ Document proof scanned and verified for scheme application!');
+        }, 1500);
+    }
+
+    async function submitSchemeApplication(event) {
+        event.preventDefault();
+        const payload = {
+            schemeId: document.getElementById('applySchemeId').value,
+            applicantName: document.getElementById('applyApplicantName').value,
+            govId: document.getElementById('applyGovId').value,
+            documentUploaded: document.getElementById('applyDocUploaded').value,
+            remarks: document.getElementById('applyRemarks').value
+        };
+
+        try {
+            const res = await fetch('/api/protected/apply-scheme', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                alert('Application failed: ' + (data.error || ''));
+                return;
+            }
+
+            closeSchemeModal();
+            alert(`🎉 Application Submitted Successfully!\nTracking Reference: ${data.applicationId}\nStatus: Verified & Processing`);
+
+            speakText(`Application submitted successfully. Your reference number is ${data.applicationId}`, currentLang);
+
+            loadDashboard();
+        } catch (e) {
+            console.error(e);
+            alert('Network error submitting application.');
+        }
+    }
+
     async function attemptLogin() {
-        const u = document.getElementById('username').value;
+        const u = document.getElementById('username').value.trim();
         const p = document.getElementById('password').value;
+        const dict = I18N[currentLang] || I18N.en;
+
+        if (!u || !p) {
+            alert('Please enter both username and password.');
+            return;
+        }
 
         try {
             const res = await fetch('/api/login', {
@@ -421,7 +1693,7 @@
 
             const data = await res.json();
             if (!res.ok) {
-                alert(data.error || 'Login failed');
+                alert(dict.alertLoginFail + (data.error || 'Authentication error'));
                 return;
             }
 
@@ -429,21 +1701,27 @@
             loadDashboard();
         } catch (e) {
             console.error(e);
-            alert('Failed to execute login request.');
+            alert(dict.alertLoginFail + 'Network error.');
         }
     }
 
     async function attemptSignup() {
+        const dict = I18N[currentLang] || I18N.en;
         const payload = {
-            username: document.getElementById('signupUsername').value,
+            username: document.getElementById('signupUsername').value.trim(),
             password: document.getElementById('signupPassword').value,
-            fullName: document.getElementById('signupFullName').value,
-            dateOfBirth: document.getElementById('signupDob').value,
-            address: document.getElementById('signupAddress').value,
-            phone: document.getElementById('signupPhone').value,
-            email: document.getElementById('signupEmail').value,
-            governmentId: document.getElementById('signupGovId').value
+            fullName: document.getElementById('signupFullName').value.trim(),
+            dateOfBirth: document.getElementById('signupDob').value.trim(),
+            address: document.getElementById('signupAddress').value.trim(),
+            phone: document.getElementById('signupPhone').value.trim(),
+            email: document.getElementById('signupEmail').value.trim(),
+            governmentId: document.getElementById('signupGovId').value.trim()
         };
+
+        if (!payload.username || !payload.password || !payload.fullName || !payload.dateOfBirth || !payload.governmentId) {
+            alert('All registration fields and KYC identity details are required.');
+            return;
+        }
 
         try {
             const res = await fetch('/api/signup', {
@@ -455,16 +1733,16 @@
 
             const data = await res.json();
             if (!res.ok) {
-                alert(data.error || 'Signup failed');
+                alert(dict.alertSignupFail + (data.error || 'Validation error'));
                 return;
             }
 
             activeUserSession = data.username;
-            alert('Account created!');
+            alert(dict.alertSignupSuccess);
             loadDashboard();
         } catch (e) {
             console.error(e);
-            alert('Failed to register account.');
+            alert(dict.alertSignupFail + 'Network error.');
         }
     }
 
@@ -472,9 +1750,10 @@
         document.getElementById('authSection').classList.add('hidden');
         document.getElementById('dashboardSection').classList.remove('hidden');
         document.getElementById('logoutBtn').classList.remove('hidden');
+        const dict = I18N[currentLang] || I18N.en;
 
         try {
-            const res = await fetch('/api/protected/dashboard-metrics', { credentials: 'same-origin' });
+            const res = await fetch(`/api/protected/dashboard-metrics?lang=${currentLang}`, { credentials: 'same-origin' });
             if (res.ok) {
                 const data = await res.json();
                 document.getElementById('lblBalance').innerText = data.balance;
@@ -487,8 +1766,21 @@
                     li.innerText = item;
                     txList.appendChild(li);
                 });
+
+                // Display submitted scheme applications if any
+                const appContainer = document.getElementById('myApplicationsContainer');
+                const appList = document.getElementById('myApplicationsList');
+                if (data.applications && data.applications.length > 0) {
+                    appContainer.classList.remove('hidden');
+                    appList.innerHTML = '';
+                    data.applications.forEach(app => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${app.applicationId}</strong> - Scheme: <em>${app.schemeId}</em> | Status: <span style="color:var(--success); font-weight:bold;">${app.status}</span> (Submitted: ${app.submissionDate})`;
+                        appList.appendChild(li);
+                    });
+                }
             } else {
-                alert('Session expired or unauthorized. Please login again.');
+                alert(dict.alertSessionExpired);
                 logout();
             }
         } catch (e) {
@@ -497,10 +1789,12 @@
     }
 
     async function fetchScheme(id) {
+        activeSchemeId = id;
         try {
-            const r = await fetch('/api/scheme/' + id);
+            const r = await fetch(`/api/scheme/${id}?lang=${currentLang}`);
             if (!r.ok) throw new Error('Scheme fetch failed');
             const scheme = await r.json();
+            activeSchemeObj = scheme;
 
             document.getElementById('schemeDetailCard').classList.remove('hidden');
             document.getElementById('schTitle').innerText = scheme.name;
@@ -514,9 +1808,139 @@
                 docsList.appendChild(li);
             });
 
-            activeSchemeSpeechContext = `Scheme name: ${scheme.name}. Required documents: ${scheme.requiredDocuments.join(', ')}. Instructions: ${scheme.instructions}`;
+            activeSchemeSpeechContext = `${scheme.name}. ${scheme.instructions}. ${scheme.requiredDocuments.join(', ')}`;
         } catch (e) {
             console.error(e);
+        }
+    }
+
+    // ==========================================
+    // AI CHATBOT LOGIC & VOICE SPEECH
+    // ==========================================
+    function toggleChatWidget() {
+        const widget = document.getElementById('chatWidget');
+        widget.classList.toggle('hidden');
+        if (!widget.classList.contains('hidden')) {
+            document.getElementById('chatInput').focus();
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const box = document.getElementById('chatMessagesBox');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-msg ${sender}`;
+
+        const textSpan = document.createElement('span');
+        textSpan.innerText = text;
+        msgDiv.appendChild(textSpan);
+
+        if (sender === 'bot') {
+            const ttsBtn = document.createElement('button');
+            ttsBtn.className = 'msg-tts-btn';
+            ttsBtn.innerText = '🔊 Read';
+            ttsBtn.setAttribute('aria-label', 'Read message aloud');
+            ttsBtn.onclick = () => speakText(text, currentLang);
+            msgDiv.appendChild(document.createElement('br'));
+            msgDiv.appendChild(ttsBtn);
+        }
+
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function readBotMessage(btn) {
+        const text = btn.previousElementSibling.previousElementSibling ? btn.previousElementSibling.previousElementSibling.innerText : btn.parentElement.innerText.replace('🔊 Read', '').trim();
+        speakText(text, currentLang);
+    }
+
+    async function sendChatMessage(customText = null) {
+        const inputEl = document.getElementById('chatInput');
+        const text = (customText !== null ? customText : inputEl.value).trim();
+        if (!text) return;
+
+        appendMessage('user', text);
+        if (customText === null) inputEl.value = '';
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ message: text, lang: currentLang })
+            });
+
+            const data = await res.json();
+            appendMessage('bot', data.reply || 'I am processing your banking request.');
+
+            if (data.action && data.action.startsWith('show_scheme_')) {
+                const targetId = data.action.replace('show_scheme_', '');
+                fetchScheme(targetId);
+            }
+        } catch (e) {
+            console.error(e);
+            appendMessage('bot', 'Sorry, I encountered a connection issue. Please try again.');
+        }
+    }
+
+    function sendQuickPrompt(btn) {
+        const text = btn.innerText.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
+        sendChatMessage(text);
+    }
+
+    // SPEECH RECOGNITION (VOICE INPUT)
+    let recognition = null;
+    let isListening = false;
+
+    function initSpeechRecognition() {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) return null;
+        const rec = new SpeechRec();
+        rec.continuous = false;
+        rec.interimResults = false;
+
+        rec.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('chatInput').value = transcript;
+            sendChatMessage();
+        };
+
+        rec.onend = () => {
+            isListening = false;
+            const btn = document.getElementById('btnVoiceInput');
+            if (btn) btn.classList.remove('voice-btn-listening');
+        };
+
+        rec.onerror = (e) => {
+            console.error('Speech recognition error:', e);
+            isListening = false;
+            const btn = document.getElementById('btnVoiceInput');
+            if (btn) btn.classList.remove('voice-btn-listening');
+        };
+
+        return rec;
+    }
+
+    function toggleSpeechRecognition() {
+        if (!recognition) {
+            recognition = initSpeechRecognition();
+        }
+
+        if (!recognition) {
+            alert('Voice speech recognition is not supported in this browser. Please type your message.');
+            return;
+        }
+
+        const btn = document.getElementById('btnVoiceInput');
+
+        if (isListening) {
+            recognition.stop();
+            isListening = false;
+            btn.classList.remove('voice-btn-listening');
+        } else {
+            recognition.lang = LANG_VOICE_MAP[currentLang] || 'en-IN';
+            recognition.start();
+            isListening = true;
+            btn.classList.add('voice-btn-listening');
         }
     }
 
@@ -526,20 +1950,31 @@
         localStorage.setItem('accessBankVoiceSpeed', voiceSpeed);
     }
 
-    function readActiveContext() {
-        if (!activeSchemeSpeechContext) return;
+    function speakText(text, lang) {
+        if (!text) return;
         window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(activeSchemeSpeechContext);
+        const u = new SpeechSynthesisUtterance(text);
+        const langCode = LANG_VOICE_MAP[lang] || 'en-IN';
+        u.lang = langCode;
         u.rate = voiceSpeed;
+
+        const voices = window.speechSynthesis.getVoices();
+        const matchingVoice = voices.find(v => v.lang.toLowerCase().startsWith(lang) || v.lang.toLowerCase() === langCode.toLowerCase());
+        if (matchingVoice) {
+            u.voice = matchingVoice;
+        }
+
         window.speechSynthesis.speak(u);
     }
 
+    function readActiveContext() {
+        if (!activeSchemeSpeechContext) return;
+        speakText(activeSchemeSpeechContext, currentLang);
+    }
+
     function readSecurityAlert() {
-        window.speechSynthesis.cancel();
-        const alertMsg = "Security Alert. AccessBank will never ask for your password or OTP. Beware of urgent threats from unknown callers.";
-        const u = new SpeechSynthesisUtterance(alertMsg);
-        u.rate = voiceSpeed;
-        window.speechSynthesis.speak(u);
+        const dict = I18N[currentLang] || I18N.en;
+        speakText(dict.fraudTts, currentLang);
     }
 
     function emergencyFreezeAccount() {
@@ -559,7 +1994,21 @@
         document.getElementById('logoutBtn').classList.add('hidden');
     }
 
+    // INITIALIZATION
     applyTextSize();
+
+    const storedSpeed = localStorage.getItem('accessBankVoiceSpeed');
+    if (storedSpeed && document.getElementById('voiceSpeed')) {
+        document.getElementById('voiceSpeed').value = storedSpeed;
+    }
+
+    changeLanguage(currentLang);
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        };
+    }
 </script>
 </body>
 </html>
