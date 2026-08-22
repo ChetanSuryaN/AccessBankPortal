@@ -19,12 +19,6 @@
             outline: 4px solid orange;
             outline-offset: 3px;
         }
-        @supports not selector(:focus-visible) {
-            button:focus, input:focus, a:focus {
-                outline: 4px solid orange;
-                outline-offset: 3px;
-            }
-        }
 
         .card { background: var(--card-bg); border: 2px solid var(--border); padding: 20px; margin: 15px 0; border-radius: 4px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
@@ -100,27 +94,6 @@
             font-weight: 600;
             cursor: pointer;
         }
-        .voice-speed-controls select:focus {
-            outline: 3px solid orange;
-            outline-offset: 2px;
-        }
-        .instructions-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 10px 0;
-            flex-wrap: wrap;
-        }
-
-        .simplified-instructions {
-            margin: 10px 0;
-            padding-left: 28px;
-        }
-
-        .simplified-instructions li {
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
 
         /* VIRTUAL KEYBOARD STYLES */
         .keyboard-container {
@@ -154,17 +127,6 @@
         .key-btn:hover {
             background: var(--primary);
             color: var(--bg);
-        }
-        .key-wide {
-            grid-column: span 2;
-        }
-        .key-action {
-            background: #dc3545;
-            color: white;
-            border-color: #dc3545;
-        }
-        .key-action:hover {
-            background: #bd2130;
         }
 
         /* ANTI-FRAUD SECTION STYLES */
@@ -227,7 +189,6 @@
 </head>
 <body>
 
-<!-- EMERGENCY LOCK SAFETY BANNER OVERLAY -->
 <div id="freezeOverlay" class="freeze-banner hidden" role="alertdialog" aria-live="assertive">
     <h1>ACCOUNT SECURELY FROZEN</h1>
     <p>
@@ -321,7 +282,30 @@
             <ul id="txHistoryList"></ul>
         </section>
 
-        <!-- ANTI-FRAUD & SCAM AWARENESS HUB -->
+        <!-- SCHEME DISCOVERY & DETAILS -->
+        <section class="card">
+            <h2>📜 Government Schemes Quick Lookup</h2>
+            <button onclick="fetchScheme('senior-citizen')">Senior Citizen Scheme</button>
+            <button onclick="fetchScheme('student-loan')">Student Loan Assistance</button>
+
+            <div id="schemeDetailCard" class="card hidden" style="margin-top: 15px;">
+                <h3 id="schTitle">Scheme Detail</h3>
+                <p><strong>Instructions:</strong> <span id="schInstructions"></span></p>
+                <div class="voice-speed-controls">
+                    <label for="voiceSpeed">Playback Speed:</label>
+                    <select id="voiceSpeed" onchange="setVoiceSpeed(this.value)">
+                        <option value="0.7">0.7x (Slower)</option>
+                        <option value="1.0" selected>1.0x (Normal)</option>
+                        <option value="1.3">1.3x (Faster)</option>
+                    </select>
+                    <button type="button" onclick="readActiveContext()">🔊 Read Aloud</button>
+                </div>
+                <h4>Required Documents</h4>
+                <ul id="schDocs"></ul>
+            </div>
+        </section>
+
+        <!-- ANTI-FRAUD HUB -->
         <section class="card fraud-alert-card">
             <h2>🛡️ Security Alert: Be Aware of Scammers</h2>
             <button type="button" onclick="readSecurityAlert()" style="background:#dc3545; color:white;">
@@ -329,123 +313,217 @@
             </button>
             <ul class="fraud-alert-list" id="fraudAlertList">
                 <li>⚠️ AccessBank will NEVER ask for your login password, PIN, or OTP over a phone call or SMS.</li>
-                <li>⚠️ Watch out for fake support lines: Always verify links end exactly in '.replit.dev' or our official domain.</li>
+                <li>⚠️ Watch out for fake support lines: Always verify links end exactly in official domains.</li>
                 <li>⚠️ Urgency Trap: If an executive threatens to freeze your account balance unless you pay immediately, hang up. It is a scam.</li>
                 <li>⚠️ Unknown remote control apps: Never download screensharing applications on your phone under anyone's instructions.</li>
             </ul>
 
-            <!-- HIGH-VISIBILITY EMERGENCY FREEZE ACTION BUTTON -->
             <button type="button" class="btn-emergency-freeze" onclick="emergencyFreezeAccount()">
                 🚨 EMERGENCY: FREEZE MY ACCOUNT NOW
             </button>
         </section>
+    </main>
+</div>
 
-        <section class="card">
-@@ -407,6 +407,19 @@
-    let isSimplifiedText = false;
+<script>
+    let activeUserSession = null;
     let activeInputId = 'username';
-
-    const SCHEME_NAMES = {
-        'senior-citizen': 'Senior Citizen Pension Scheme',
-        'student-loan': 'Student Education Loan Scheme',
-        'jan-dhan': 'PM Jan Dhan Yojana (PMJDY)',
-        'sukanya-samriddhi': 'Sukanya Samriddhi Yojana (SSY)',
-        'kisan-credit': 'Kisan Credit Card (KCC) Scheme',
-        'atal-pension': 'Atal Pension Yojana (APY)',
-        'home-loan': 'PM Awas Yojana Home Loan Support',
-        'mudra-loan': 'Mudra Micro Business Loan (PMMY)',
-        'fixed-deposit': 'Tax Saver Fixed Deposit Scheme',
-        'nsc': 'National Savings Certificate (NSC)'
-    };
+    let activeSchemeSpeechContext = "";
 
     const TEXT_SIZES = [1, 1.15, 1.3, 1.45, 1.6, 1.8];
     let textSizeIndex = Number(localStorage.getItem('accessBankTextSizeIndex') || 0);
 
-@@ -738,66 +751,99 @@
+    function applyTextSize() {
+        document.documentElement.style.setProperty('--text-scale', TEXT_SIZES[textSizeIndex]);
+        localStorage.setItem('accessBankTextSizeIndex', textSizeIndex);
+    }
+    function increaseTextSize() {
+        if (textSizeIndex < TEXT_SIZES.length - 1) { textSizeIndex++; applyTextSize(); }
+    }
+    function decreaseTextSize() {
+        if (textSizeIndex > 0) { textSizeIndex--; applyTextSize(); }
+    }
+    function resetTextSize() {
+        textSizeIndex = 0; applyTextSize();
+    }
+
+    function toggleContrast() {
+        document.body.classList.toggle('high-contrast');
+    }
+
+    function switchAuthTab(tab) {
+        if (tab === 'login') {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('tabLoginBtn').classList.add('active');
+            document.getElementById('tabSignupBtn').classList.remove('active');
+            setActiveInput('username');
+        } else {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('tabLoginBtn').classList.remove('active');
+            document.getElementById('tabSignupBtn').classList.add('active');
+            setActiveInput('signupUsername');
+        }
+    }
+
+    function setActiveInput(id) {
+        activeInputId = id;
+        const targetLabel = document.getElementById('lblActiveInput');
+        if (targetLabel) targetLabel.innerText = id;
+    }
+
+    function toggleKeyboard() {
+        document.getElementById('virtualKeyboard').classList.toggle('hidden');
+        renderKeyboard();
+    }
+
+    function renderKeyboard() {
+        const keysContainer = document.getElementById('keyboardKeys');
+        if (!keysContainer || keysContainer.children.length > 0) return;
+
+        const keys = [
+            '1','2','3','4','5','6','7','8','9','0',
+            'q','w','e','r','t','y','u','i','o','p',
+            'a','s','d','f','g','h','j','k','l','@',
+            'z','x','c','v','b','n','m','.','_','Bksp'
+        ];
+
+        keys.forEach(key => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'key-btn';
+            btn.innerText = key;
+            btn.onclick = () => {
+                const targetInput = document.getElementById(activeInputId);
+                if (!targetInput) return;
+                if (key === 'Bksp') {
+                    targetInput.value = targetInput.value.slice(0, -1);
+                } else {
+                    targetInput.value += key;
+                }
+            };
+            keysContainer.appendChild(btn);
+        });
+    }
+
+    async function attemptLogin() {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ username: u, password: p })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.error || 'Login failed');
+                return;
+            }
+
+            activeUserSession = data.username;
+            loadDashboard();
+        } catch (e) {
+            console.error(e);
+            alert('Failed to execute login request.');
+        }
+    }
+
+    async function attemptSignup() {
+        const payload = {
+            username: document.getElementById('signupUsername').value,
+            password: document.getElementById('signupPassword').value,
+            fullName: document.getElementById('signupFullName').value,
+            dateOfBirth: document.getElementById('signupDob').value,
+            address: document.getElementById('signupAddress').value,
+            phone: document.getElementById('signupPhone').value,
+            email: document.getElementById('signupEmail').value,
+            governmentId: document.getElementById('signupGovId').value
+        };
+
+        try {
+            const res = await fetch('/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.error || 'Signup failed');
+                return;
+            }
+
+            activeUserSession = data.username;
+            alert('Account created!');
+            loadDashboard();
+        } catch (e) {
+            console.error(e);
+            alert('Failed to register account.');
+        }
+    }
+
+    async function loadDashboard() {
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('dashboardSection').classList.remove('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+
+        try {
+            const res = await fetch('/api/protected/dashboard-metrics', { credentials: 'same-origin' });
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('lblBalance').innerText = data.balance;
+                document.getElementById('lblCibil').innerText = data.cibil;
+
+                const txList = document.getElementById('txHistoryList');
+                txList.innerHTML = '';
+                data.history.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerText = item;
+                    txList.appendChild(li);
+                });
+            } else {
+                alert('Session expired or unauthorized. Please login again.');
+                logout();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     async function fetchScheme(id) {
         try {
             const r = await fetch('/api/scheme/' + id);
-            if (!r.ok) {
-                throw new Error('Scheme detail not found on server');
-            }
+            if (!r.ok) throw new Error('Scheme fetch failed');
             const scheme = await r.json();
+
             document.getElementById('schemeDetailCard').classList.remove('hidden');
-            const name = scheme.schemeName || scheme.name;
-            document.getElementById('schTitle').innerText = name;
-            activeSchemeOriginalInstructions = scheme.instructions || "";
-            
-            const resolvedName = scheme.schemeName || scheme.name || SCHEME_NAMES[id] || 'Government Scheme Detail';
-            document.getElementById('schTitle').innerText = resolvedName;
-            
-            activeSchemeOriginalInstructions = scheme.instructions || "Please visit your nearest bank branch to initiate application verification for this scheme.";
-            activeSchemeSimpleInstructions = createSimpleInstructions(activeSchemeOriginalInstructions);
-
-            document.getElementById('schInstructions').innerText = activeSchemeOriginalInstructions;
-            renderSimpleInstructions();
-            resetInstructionDisplay();
-
-            document.getElementById('schVideo').src = scheme.videoUrl;
-            document.getElementById('schVideo').src = scheme.videoUrl || "https://example.com";
-            
-            const docsList = document.getElementById('schDocs');
-            docsList.innerHTML = "";
-            const docs = (scheme.requiredDocuments && scheme.requiredDocuments.length) 
-                ? scheme.requiredDocuments 
-                : ["Aadhaar Card", "Identity Proof", "Address Proof", "Passport Size Photo"];
-                
-            docs.forEach(doc => {
-                let li = document.createElement('li'); 
-                li.innerText = doc; 
-                docsList.appendChild(li);
-            });
-
-            activeSchemeSpeechContext = `Scheme name: ${resolvedName}. Required documents are: ${docs.join(', ')}. Instructions: ${activeSchemeOriginalInstructions}`;
-        } catch(e) { 
-            console.error(e);
-            document.getElementById('schemeDetailCard').classList.remove('hidden');
-            const fallbackName = SCHEME_NAMES[id] || 'Government Scheme Detail';
-            document.getElementById('schTitle').innerText = fallbackName;
-            
-            activeSchemeOriginalInstructions = "Please visit your nearest bank branch or official portal for enrollment details.";
-            activeSchemeSimpleInstructions = createSimpleInstructions(activeSchemeOriginalInstructions);
-            
-            document.getElementById('schInstructions').innerText = activeSchemeOriginalInstructions;
-            renderSimpleInstructions();
-            resetInstructionDisplay();
+            document.getElementById('schTitle').innerText = scheme.name;
+            document.getElementById('schInstructions').innerText = scheme.instructions;
 
             const docsList = document.getElementById('schDocs');
-            docsList.innerHTML = "";
+            docsList.innerHTML = '';
             scheme.requiredDocuments.forEach(doc => {
-                let li = document.createElement('li'); li.innerText = doc; docsList.appendChild(li);
-            ["Identity Proof", "Address Proof", "Government ID Card"].forEach(doc => {
                 let li = document.createElement('li');
                 li.innerText = doc;
                 docsList.appendChild(li);
             });
 
-            activeSchemeSpeechContext = `Scheme name: ${name}. Required documents are: ${scheme.requiredDocuments.join(', ')}. Instructions: ${scheme.instructions}`;
-        } catch(e) { console.error(e); }
-            activeSchemeSpeechContext = `Scheme name: ${fallbackName}. Please visit your nearest bank branch for details.`;
+            activeSchemeSpeechContext = `Scheme name: ${scheme.name}. Required documents: ${scheme.requiredDocuments.join(', ')}. Instructions: ${scheme.instructions}`;
+        } catch (e) {
+            console.error(e);
         }
     }
 
     let voiceSpeed = Number(localStorage.getItem('accessBankVoiceSpeed') || 1.0);
-
     function setVoiceSpeed(speed) {
-        const selectedSpeed = Number(speed);
-        if ([0.7, 1.0, 1.3].includes(selectedSpeed)) {
-            voiceSpeed = selectedSpeed;
-            localStorage.setItem('accessBankVoiceSpeed', voiceSpeed);
-        }
-    }
-
-    function applySavedVoiceSpeed() {
-        const selector = document.getElementById('voiceSpeed');
-        if (!selector) return;
-
-        const savedSpeed = Number(localStorage.getItem('accessBankVoiceSpeed') || 1.0);
-        voiceSpeed = [0.7, 1.0, 1.3].includes(savedSpeed) ? savedSpeed : 1.0;
-        selector.value = String(voiceSpeed);
+        voiceSpeed = Number(speed);
+        localStorage.setItem('accessBankVoiceSpeed', voiceSpeed);
     }
 
     function readActiveContext() {
@@ -456,16 +534,32 @@
         window.speechSynthesis.speak(u);
     }
 
-    applySavedVoiceSpeed();
+    function readSecurityAlert() {
+        window.speechSynthesis.cancel();
+        const alertMsg = "Security Alert. AccessBank will never ask for your password or OTP. Beware of urgent threats from unknown callers.";
+        const u = new SpeechSynthesisUtterance(alertMsg);
+        u.rate = voiceSpeed;
+        window.speechSynthesis.speak(u);
+    }
 
-    function logout() {
+    function emergencyFreezeAccount() {
+        document.getElementById('freezeOverlay').classList.remove('hidden');
+    }
+
+    async function logout() {
+        try {
+            await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+        } catch (e) {
+            console.error(e);
+        }
         activeUserSession = null;
         window.speechSynthesis.cancel();
         document.getElementById('authSection').classList.remove('hidden');
         document.getElementById('dashboardSection').classList.add('hidden');
-        document.getElementById('schemeDetailCard').classList.add('hidden');
         document.getElementById('logoutBtn').classList.add('hidden');
     }
+
+    applyTextSize();
 </script>
 </body>
 </html>
