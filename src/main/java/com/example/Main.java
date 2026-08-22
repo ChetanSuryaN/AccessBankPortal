@@ -1,6 +1,8 @@
 package com.example;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
+import io.javalin.json.JavalinJackson;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.HashMap;
@@ -21,12 +23,13 @@ public final class Main {
 
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/static");
+            config.jsonMapper(new JavalinJackson(new ObjectMapper()));
         });
 
         app.get("/", ctx -> ctx.html(frontend()));
         app.get("/index.html", ctx -> ctx.html(frontend()));
 
-        // Check active session status
+        // Active Session Check
         app.get("/api/me", ctx -> {
             String loggedInUser = ctx.sessionAttribute("currentUser");
             if (loggedInUser == null) {
@@ -41,7 +44,7 @@ public final class Main {
             ctx.json(Map.of("username", loggedInUser, "profile", publicProfile(user)));
         });
 
-        // Protected profile endpoint
+        // Protected Profile Autofill
         app.get("/api/autofill-profile", ctx -> {
             String loggedInUser = ctx.sessionAttribute("currentUser");
             if (loggedInUser == null) {
@@ -51,7 +54,7 @@ public final class Main {
             ctx.json(publicProfile(usersDatabase.get(loggedInUser)));
         });
 
-        // Registration endpoint with BCrypt password hashing
+        // Registration Endpoint
         app.post("/api/signup", ctx -> {
             try {
                 Map<String, Object> request = requestBody(ctx);
@@ -65,7 +68,6 @@ public final class Main {
                     usersDatabase.put(username, userRecord(request));
                 }
 
-                // Authenticate session after successful signup
                 ctx.sessionAttribute("currentUser", username);
 
                 ctx.status(201).json(Map.of(
@@ -78,7 +80,7 @@ public final class Main {
             }
         });
 
-        // Login endpoint with password verification
+        // Login Endpoint
         app.post("/api/login", ctx -> {
             try {
                 Map<String, Object> request = requestBody(ctx);
@@ -97,7 +99,6 @@ public final class Main {
                     return;
                 }
 
-                // Establish authenticated server session
                 ctx.sessionAttribute("currentUser", username);
 
                 ctx.json(Map.of(
@@ -110,13 +111,13 @@ public final class Main {
             }
         });
 
-        // Logout route clearing session
+        // Logout
         app.post("/api/logout", ctx -> {
             ctx.req().getSession().invalidate();
             ctx.json(Map.of("message", "Logged out successfully"));
         });
 
-        // Protected Emergency Freeze
+        // Emergency Account Lock
         app.post("/api/freeze-account", ctx -> {
             String loggedInUser = ctx.sessionAttribute("currentUser");
             if (loggedInUser == null) {
@@ -128,7 +129,7 @@ public final class Main {
                 Map<String, Object> user = usersDatabase.get(loggedInUser);
                 if (user != null) {
                     user.put("isFrozen", true);
-                    ctx.req().getSession().invalidate(); // Destroy session upon freezing
+                    ctx.req().getSession().invalidate();
                     ctx.json(Map.of("message", "Account frozen successfully"));
                 } else {
                     ctx.status(404).json(Map.of("error", "User not found"));
@@ -136,6 +137,7 @@ public final class Main {
             }
         });
 
+        // Schemes Endpoint
         app.get("/api/scheme/{schemeId}", ctx -> {
             String schemeId = ctx.pathParam("schemeId");
             Map<String, Object> scheme = schemes().get(schemeId);
@@ -161,12 +163,13 @@ public final class Main {
         usersDatabase.put("priya123", defaultUser);
     }
 
+    @SuppressWarnings("unchecked")
     private static Map<String, Object> requestBody(io.javalin.http.Context ctx) {
         try {
-            return ctx.bodyAsClass(Map.class);
+            Map<String, Object> body = ctx.bodyAsClass(Map.class);
+            return body != null ? body : Map.of();
         } catch (Exception exception) {
-            ctx.status(400).json(Map.of("error", "Request body must be valid JSON"));
-            return Map.of();
+            throw new IllegalArgumentException("Request body must be valid JSON");
         }
     }
 
@@ -226,22 +229,86 @@ public final class Main {
 
     private static Map<String, Map<String, Object>> schemes() {
         Map<String, Map<String, Object>> schemes = new LinkedHashMap<>();
+
         schemes.put("senior-citizen", scheme(
                 "Senior Citizen Benefits Scheme",
                 List.of("Government ID", "Proof of age", "Address proof", "Recent photograph"),
                 "Submit your identity, age, and address documents through the nearest authorized service center.",
                 "https://example.com"
         ));
+
         schemes.put("student-loan", scheme(
                 "Student Loan Assistance Scheme",
                 List.of("Government ID", "Admission letter", "Academic transcripts", "Income certificate"),
                 "Complete the student loan application with your admission and financial documents, then submit it to a participating bank.",
                 "https://example.com"
         ));
+
+        schemes.put("jan-dhan", scheme(
+                "Pradhan Mantri Jan Dhan Yojana (PMJDY)",
+                List.of("Aadhaar Card", "Voter ID", "PAN Card", "Passport size photo"),
+                "Visit any bank branch or Bank Mitra outlet with your Aadhaar card to open a zero-balance account instantly.",
+                "https://example.com"
+        ));
+
+        schemes.put("sukanya-samriddhi", scheme(
+                "Sukanya Samriddhi Yojana (SSY)",
+                List.of("Birth Certificate of girl child", "Parent/Guardian ID proof", "Address proof", "Photo"),
+                "Fill out the SSY account opening form at your nearest post office or authorized commercial bank with guardian details.",
+                "https://example.com"
+        ));
+
+        schemes.put("kisan-credit", scheme(
+                "Kisan Credit Card (KCC) Scheme",
+                List.of("Land Ownership Documents", "Identity Proof", "Address Proof", "Crop details"),
+                "Submit land registry records and agricultural operation details at your local rural bank branch.",
+                "https://example.com"
+        ));
+
+        schemes.put("atal-pension", scheme(
+                "Atal Pension Yojana (APY)",
+                List.of("Aadhaar Card", "Active Savings Bank Account", "Mobile number"),
+                "Link your savings account and complete the auto-debit authorization form at your home bank branch.",
+                "https://example.com"
+        ));
+
+        schemes.put("home-loan", scheme(
+                "Pradhan Mantri Awas Yojana (PMAY) Home Loan",
+                List.of("Income Proof", "Property valuation report", "Aadhaar Card", "Bank statements (6 months)"),
+                "Apply online or visit an approved housing finance lender with property documents and salary/income statements.",
+                "https://example.com"
+        ));
+
+        schemes.put("mudra-loan", scheme(
+                "Pradhan Mantri MUDRA Yojana (PMMY)",
+                List.of("Business Registration certificate", "Identity Proof", "Bank statement", "Business plan outline"),
+                "Submit your business proposal and identity records to any commercial bank, RRB, or MFI offering Mudra loans.",
+                "https://example.com"
+        ));
+
+        schemes.put("fixed-deposit", scheme(
+                "Tax Saver Fixed Deposit Scheme",
+                List.of("PAN Card", "Aadhaar Card", "Existing Savings account details"),
+                "Deposit funds for a locked term of 5 years through net banking or by filling an FD request form at the branch.",
+                "https://example.com"
+        ));
+
+        schemes.put("nsc", scheme(
+                "National Savings Certificate (NSC)",
+                List.of("Identity Proof", "Address Proof", "PAN Card", "Purchase form"),
+                "Purchase NSC certificates directly through your local post office branch or authorized online portal.",
+                "https://example.com"
+        ));
+
         return schemes;
     }
 
-    private static Map<String, Object> scheme(String name, List<String> requiredDocuments, String instructions, String videoUrl) {
+    private static Map<String, Object> scheme(
+            String name,
+            List<String> requiredDocuments,
+            String instructions,
+            String videoUrl
+    ) {
         Map<String, Object> scheme = new LinkedHashMap<>();
         scheme.put("name", name);
         scheme.put("schemeName", name);
